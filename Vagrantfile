@@ -5,7 +5,7 @@ require 'fileutils'
 
 Vagrant.require_version ">= 1.6.0"
 
-CLOUD_CONFIG_PATH = File.join(File.dirname(__FILE__), "cloud-config.yml")
+#CLOUD_CONFIG_PATH = File.join(File.dirname(__FILE__), "cloud-config.yml")
 BASHRC = File.join(File.dirname(__FILE__), "templates/.bashrc")
 CONFIG = File.join(File.dirname(__FILE__), "vagrant_config.rb")
 MOUNT_POINTS = YAML::load_file('vagrant_synced_folders.yaml')
@@ -60,30 +60,6 @@ required_plugins.each do |plugin|
   exec "vagrant #{ARGV.join(' ')}" if need_restart
 end
 
-# for creating new instance each time
-# if $internet
-#   reset discoveryUrl as CoreOs is used alone
-#   $new_discovery_url="https://discovery.etcd.io/new?size=#{$num_instances}"
-
-#   if File.exists?('cloud-config.yml') && ARGV[0].eql?('up')
-#    require 'open-uri'
-#    require 'yaml'
-
-#    token = open($new_discovery_url).read
-
-#    data = YAML.load(IO.readlines('cloud-config.yml')[1..-1].join)
-#    if data['coreos'].key? 'etcd'
-#      data['coreos']['etcd']['discovery'] = token
-#    end
-#    if data['coreos'].key? 'etcd2'
-#      data['coreos']['etcd2']['discovery'] = token
-#    end
-
-#    yaml = YAML.dump(data)
-#    File.open('cloud-config.yml', 'w') { |file| file.write("#cloud-config\n\n#{yaml}") }
-#   end
-# end
-
 # Attempt to apply the deprecated environment variable NUM_INSTANCES to
 # $num_instances while allowing config.rb to override it
 if ENV["NUM_INSTANCES"].to_i > 0 && ENV["NUM_INSTANCES"]
@@ -113,8 +89,8 @@ Vagrant.configure("2") do |config|
   config.ssh.username
 
 
-  # IMAGE
-  # =====
+  # =============== IMAGE
+  # =============================================
   config.vm.box = "coreos-%s" % $update_channel
   if $image_version != "current"
       config.vm.box_version = $image_version
@@ -137,8 +113,8 @@ Vagrant.configure("2") do |config|
     config.vm.hostname = vm_name
 
 
-    # NETWORK
-    # =======
+    # =============== NETWORK
+    # =============================================
     if $expose_docker_tcp
       config.vm.network "forwarded_port", guest: 2375, host: $expose_docker_tcp, auto_correct: true
     end
@@ -159,8 +135,8 @@ Vagrant.configure("2") do |config|
     config.vm.network :public_network, ip: ip_public
 
 
-    # SHARED FOLDERS
-    # ==============
+    # =============== SHARED FOLDERS
+    # =============================================
     begin
       MOUNT_POINTS.each do |mount|
         mount_options = ""
@@ -188,16 +164,17 @@ Vagrant.configure("2") do |config|
     rescue
     end
 
+    # if File.exist?(CLOUD_CONFIG_PATH)
+    #   config.vm.provision :file, :source => "#{CLOUD_CONFIG_PATH}", :destination => "/tmp/vagrantfile-user-data"
+    #   config.vm.provision :shell, :inline => "mv /tmp/vagrantfile-user-data /var/lib/coreos-vagrant/", :privileged => true
+    # end
 
-    if File.exist?(CLOUD_CONFIG_PATH)
-      config.vm.provision :file, :source => "#{CLOUD_CONFIG_PATH}", :destination => "/tmp/vagrantfile-user-data"
-      config.vm.provision :shell, :inline => "mv /tmp/vagrantfile-user-data /var/lib/coreos-vagrant/", :privileged => true
-    end
-
-
-    # BASHRC
+    # =============== BASHRC
+    # =============================================
     config.vm.provision :shell, :inline => "rm /home/core/.bashrc"
-    config.vm.provision :file, :source => "templates/.bashrc", :destination => "/home/core/.bashrc"
-
+    config.vm.provision :file, :source => "templates/.bashrc",    :destination => "/home/core/.bashrc"
+    config.vm.provision :file, :source => "templates/.zshrc",     :destination => "/home/core/.zshrc"
+    config.vm.provision :file, :source => "templates/zsh",        :destination => "/home/core/zsh"
+    config.vm.provision :file, :source => "templates/.oh-my-zsh", :destination => "/home/core/.oh-my-zsh"
   end
 end
