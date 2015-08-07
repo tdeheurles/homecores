@@ -1,2 +1,6 @@
-config.sh
-cloud-config.yml
+# Bare-Metal
+baremetal/config.sh
+baremetal/cloud-config.yml
+
+# Vagrant
+vagrant/.vagrant
