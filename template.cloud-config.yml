@@ -1,0 +1,69 @@
+#cloud-config
+
+users:
+  - name: core
+    passwd: __PASSWORD__
+    ssh_authorized_keys:
+      - ssh-rsa __ID_RSA__
+    groups:
+      - sudo
+      - docker
+
+coreos:
+  etcd:
+    name: __HOSTNAME__
+    discovery: https://discovery.etcd.io/__DISCOVERY_TOKEN__
+
+  units:
+    - name: fleet.service
+      command: start
+
+    - name: etcd2.service
+      command: start
+
+    - name: hyberkube.target
+      command: start
+      content: |
+        [Unit]
+        Description=Download Hyperkube
+        Requires=etcd2.service fleet.service docker.service
+        After=etcd2.service fleet.service docker.service
+
+        [Service]
+        ExecStart=/usr/bin/docker pull __IMAGE_KUBERNETES__
+
+    - name: kubernetes.service
+      command: start
+      content: |
+        [Unit]
+        Description=Kubernetes master services
+        Documentation=https://github.com/GoogleCloudPlatform/kubernetes
+        Requires=hyberkube.target
+        After=hyperkube.target
+
+        [Service]
+        ExecStart=/usr/bin/docker run --net=host -v /var/run/docker.sock:/var/run/docker.sock __IMAGE_KUBERNETES__ /hyperkube kubelet --api_servers=http://localhost:8080 --v=2 --address=0.0.0.0 --enable_server --hostname_override=127.0.0.1 --config=/etc/kubernetes/manifests
+
+#    - name: kube-proxy.service
+#      command: start
+#      content: |
+#        [Unit]
+#        Description=Kubernetes proxy service
+#        Requires=hyperkube.target
+#        After=hyperkube.target
+#
+#        [Service]
+#        ExecStart=/usr/bin/docker run --net=host --privileged __IMAGE_KUBERNETES__ /hyperkube proxy --master=http://localhost:8080 --v=2
+
+    - name: galliasphere.service
+      command: start
+      content: |
+        [Unit]
+        Description=site galliasphere.com
+        Requires=docker.service
+        After=docker.service
+
+        [Service]
+        ExecStart=/usr/bin/docker run -p 80:80 nginxtest:latest
+
+hostname: __HOSTNAME__
