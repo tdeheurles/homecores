@@ -53,7 +53,7 @@ coreos:
 #        After=hyperkube.target
 #
 #        [Service]
-#        ExecStart=/usr/bin/docker run --net=host --privileged __IMAGE_KUBERNETES__ /hyperkube proxy --master=http://localhost:8080 --v=2
+#        ExecStart=/usr/bin/docker run --privileged --net=host __IMAGE_KUBERNETES__ /hyperkube proxy --master=http://localhost:8080 --v=2
 
     - name: galliasphere.service
       command: start
