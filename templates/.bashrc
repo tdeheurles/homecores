@@ -1,19 +1,17 @@
-# ZSHRC
-# =====
-alias edz="vi ~/.zshrc && uprc"
-alias uprc="exec -l $SHELL"
-
-# REPOSITORY
+# repository
 # ==========
 repository="/home/core/repository"
 alias repo="cd $repository"
 
-# AFFICHAGE
+# Affichage
 # =========
 alias l="ls -lthg --color"
 alias la="l -A"
 alias ct="clear && pwd"
 
+# debian
+# ======
+alias debian="docker run -ti --rm debian:latest bash"
 
 # DOCKER
 # ======
@@ -21,8 +19,6 @@ alias dps="docker ps"
 alias dpsa="docker ps -a"
 alias dim="docker images"
 # alias dclean="docker kill $(docker ps -q) && docker rm $(docker ps -a -q) && docker rmi $(docker images -q -f dangling=true)"
-alias debian="docker run -ti --rm debian:latest bash"
-
 
 # GIT
 # ===
@@ -34,7 +30,6 @@ alias gst="git status"
 alias gcmsg="git commit -m"
 alias gchmodx="git update-index --chmod=+x"
 function gctd() { git clone https://github.com/tdeheurles/$1 }
-
 
 # KUBERNETES
 # ==========
@@ -142,7 +137,14 @@ function goget {
     /bin/bash -c "go get $@"
 }
 
+# COREOS
+# ======
+alias catcloudconf="sudo cat /var/lib/coreos-install/user_data"
 
+# ZSHRC
+# =====
+alias edz="vi ~/.zshrc && uprc"
+alias uprc="exec -l $SHELL"
 
 # KUBECTL
 # =======
@@ -150,25 +152,25 @@ kubectl() {
   docker run --net=host tdeheurles/gcloud-tools kubectl $@
 }
 
-# ======================================= COREOS
-# =====================================================================================
-alias catcloudconf="sudo cat /var/lib/coreos-install/user_data"
-
 # CLOUD-CONFIG
-cloud_config="$repository/homecores/baremetal/template.cloud-config.yml"
-alias validate-cloud-config="coreos_cloudinit -validate=true --from-file $cloud_config"
+# ============
+cloud_config="$repository/homecores/templates/template.cloud-config.yml"
+alias validate-cloud-config="coreos-cloudinit -validate=true --from-file $cloud_config"
 alias edit-cloud-config="vi $cloud_config && validate-cloud-config"
-alias update-cloud-config="repo ; cd homecores/baremetal ; ./update_user-data.sh"
+alias update-cloud-config="repo ; cd homecores ; ./update_user_data.sh"
+alias edit-cloud-config-config="repo ; cd homecores ; vi config.sh ; ./generate.sh"
 alias see-cloud-config="sudo cat /var/lib/coreos-install/user_data"
 alias ecc="edit-cloud-config"
+alias eccc="edit-cloud-config-config"
 alias ucc="update-cloud-config && sudo reboot"
 alias scc="see-cloud-config"
 
 
-# SYSTEM JOURNAL
+# system journal
 # ==============
 function jo() {
   journalctl --unit=$@
 }
 
 alias jcc="journalctl -b --no-pager -u \"user-cloudinit@var-lib-coreos\x2dinstall-user_data.service\""
+

@@ -10,7 +10,7 @@ users:
       - docker
 
 coreos:
-  etcd:
+  etcd2:
     name: __HOSTNAME__
     discovery: https://discovery.etcd.io/__DISCOVERY_TOKEN__
 
