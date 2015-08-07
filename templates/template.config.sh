@@ -6,7 +6,7 @@ id_rsa=''
 discovery_token=''
 
 # server
-hostname='node01'
+hostname=''
 
 # kubernetes
 image_kubernetes='gcr.io/google_containers/hyperkube:v1.0.1'
