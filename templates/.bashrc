@@ -1,33 +1,31 @@
-# Instructions
-# - Use space if you want to indent
-# - To update your basrhc you can run uprc
+# ZSHRC
+# =====
+alias edz="vi ~/.zshrc && uprc"
+alias uprc="exec -l $SHELL"
 
-# update .basrhc
-alias uprc="cat < /repository/coreos-vagrant/templates/.bashrc > ~/.bashrc && exec -l $SHELL"
+# REPOSITORY
+# ==========
+repository="/home/core/repository"
+alias repo="cd $repository"
 
-# repository
-alias repo="cd /repository"
-
-# ls
+# AFFICHAGE
+# =========
 alias l="ls -lthg --color"
 alias la="l -A"
-
-# Affichage
 alias ct="clear && pwd"
 
-# Edit .bashc
-alias edb="vi ~/.bashrc"
-
-# debian
-alias debian="docker run -ti --rm debian:latest bash"
 
 # DOCKER
+# ======
 alias dps="docker ps"
 alias dpsa="docker ps -a"
 alias dim="docker images"
 # alias dclean="docker kill $(docker ps -q) && docker rm $(docker ps -a -q) && docker rmi $(docker images -q -f dangling=true)"
+alias debian="docker run -ti --rm debian:latest bash"
+
 
 # GIT
+# ===
 alias ga="git add"
 alias gaa="git add -A"
 alias gl="git pull"
@@ -35,34 +33,22 @@ alias gp="git push"
 alias gst="git status"
 alias gcmsg="git commit -m"
 alias gchmodx="git update-index --chmod=+x"
-
-# GCLOUD
-kube_default_zone="europe-west1-b"
-
-# main function for running docker gcloud
-function gcloud-tools {
-  docker run                                         \
-    --rm                                             \
-    -v /home/core/.kube/:/.kube/                     \
-    -v /home/core/.config/gcloud/:/.config/gcloud/   \
-    -v `pwd`:/workspace                              \
-    -w /workspace                                    \
-    -ti tdeheurles/gcloud-tools                      \
-   $@
-}
-
-function gcloud {
-  gcloud-tools gcloud $@
-}
-
-function kubectl {
-  gcloud-tools kubectl $@
-}
+function gctd() { git clone https://github.com/tdeheurles/$1 }
 
 
-# kubernetes
-function kubestatus {
-  echo -e "\e[94m master services\e[39m" \
+# KUBERNETES
+# ==========
+function servst {
+  echo -e "\e[94m CoreOS\e[39m" \
+    && echo -n "   fleet             "   \
+    && systemctl status fleet | grep --color=never Active \
+    && echo -n "   flanneld          "   \
+    && systemctl status flanneld | grep --color=never Active \
+    && echo -n "   docker            "   \
+    && systemctl status docker | grep --color=never Active \
+    && echo -n "   etcd2             "   \
+    && systemctl status etcd2 | grep --color=never Active \
+    && echo -e "\e[94m master services\e[39m" \
     && echo -n "   api-server        "   \
     && systemctl status kube-apiserver | grep --color=never Active \
     && echo -n "   controller-manager"   \
@@ -106,30 +92,10 @@ function kcreate {
 }
 alias kstop="kubectl stop rc,service -l "
 
-# to scale eplicas of a RC
+# to scale replicas of a RC
 function gscale {
   kubectl scale --replicas=$2 rc $1
 }
-
-# Set gcloud project to argument
-function gsp {
-  gcloud config set project $1
-}
-
-
-# Get credentials for kubectl
-function ggc {
-  gcloud alpha container get-credentials --zone=$kube_default_zone --cluster=$1
-}
-
-alias gfo="gcloud compute forwarding-rules list"
-alias gfi="gcloud compute firewall-rules list"
-
-alias glogin="gcloud auth login"
-alias gal="gcloud auth list"
-alias gsa="gcloud config set account"
-alias kcv="echo \" \" ; gcloud config list | grep account ; gcloud config list | grep project ; kubectl config view | grep current-context ; echo \" \" ; echo -e \"\e[92mAvailable contexts\e[39m\" ; kubectl config view | egrep \"user: \" | sed s/user:/-/g ; echo \" \""
-alias kuse="kubectl config use-context"
 
 # jvm-tools
 function jvm-tools {
@@ -140,10 +106,12 @@ function jvm-tools {
     -v ~/.activator:/root/.activator    \
     -v `pwd`:/workspace                 \
     -w /workspace                       \
+
     -ti tdeheurles/jvm-tools /bin/bash -c "$@"
 }
 
-# golang
+# GOLANG
+# ======
 export PATH="~/go/bin:$PATH"
 function goinstall {
   docker run \
@@ -173,3 +141,34 @@ function goget {
   golang:latest \
     /bin/bash -c "go get $@"
 }
+
+
+
+# KUBECTL
+# =======
+kubectl() {
+  docker run --net=host tdeheurles/gcloud-tools kubectl $@
+}
+
+# ======================================= COREOS
+# =====================================================================================
+alias catcloudconf="sudo cat /var/lib/coreos-install/user_data"
+
+# CLOUD-CONFIG
+cloud_config="$repository/homecores/baremetal/template.cloud-config.yml"
+alias validate-cloud-config="coreos_cloudinit -validate=true --from-file $cloud_config"
+alias edit-cloud-config="vi $cloud_config && validate-cloud-config"
+alias update-cloud-config="repo ; cd homecores/baremetal ; ./update_user-data.sh"
+alias see-cloud-config="sudo cat /var/lib/coreos-install/user_data"
+alias ecc="edit-cloud-config"
+alias ucc="update-cloud-config && sudo reboot"
+alias scc="see-cloud-config"
+
+
+# SYSTEM JOURNAL
+# ==============
+function jo() {
+  journalctl --unit=$@
+}
+
+alias jcc="journalctl -b --no-pager -u \"user-cloudinit@var-lib-coreos\x2dinstall-user_data.service\""

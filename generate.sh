@@ -2,10 +2,7 @@
 
 . config.sh
 
-input_file="template.cloud-config.yml"
-out_file="cloud-config.yml"
-
-cp $input_file $out_file
+cp $cloud_config_template_file $cloud_config_file
 
 sed -i "s|__PASSWORD__|$password|g"                 $out_file
 sed -i "s|__ID_RSA__|$id_rsa|g"                     $out_file

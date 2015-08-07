@@ -1,6 +1,9 @@
 # Bare-Metal
-baremetal/config.sh
-baremetal/cloud-config.yml
+config.sh
+cloud-config.yml
 
 # Vagrant
-vagrant/.vagrant
+.vagrant/
+log/
+vagrant_config.rb
+vagrant_synced_folders.yaml

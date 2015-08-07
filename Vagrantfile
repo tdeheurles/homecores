@@ -5,10 +5,10 @@ require 'fileutils'
 
 Vagrant.require_version ">= 1.6.0"
 
-CLOUD_CONFIG_PATH = File.join(File.dirname(__FILE__), "user-data")
+CLOUD_CONFIG_PATH = File.join(File.dirname(__FILE__), "cloud-config.yml")
 BASHRC = File.join(File.dirname(__FILE__), "templates/.bashrc")
-CONFIG = File.join(File.dirname(__FILE__), "config.rb")
-MOUNT_POINTS = YAML::load_file('synced_folders.yaml')
+CONFIG = File.join(File.dirname(__FILE__), "vagrant_config.rb")
+MOUNT_POINTS = YAML::load_file('vagrant_synced_folders.yaml')
 
 # Defaults for config options defined in CONFIG
 $num_instances = 1
@@ -61,28 +61,28 @@ required_plugins.each do |plugin|
 end
 
 # for creating new instance each time
-if $internet
-  reset discoveryUrl as CoreOs is used alone
-  $new_discovery_url="https://discovery.etcd.io/new?size=#{$num_instances}"
+# if $internet
+#   reset discoveryUrl as CoreOs is used alone
+#   $new_discovery_url="https://discovery.etcd.io/new?size=#{$num_instances}"
 
-  if File.exists?('user-data') && ARGV[0].eql?('up')
-   require 'open-uri'
-   require 'yaml'
+#   if File.exists?('cloud-config.yml') && ARGV[0].eql?('up')
+#    require 'open-uri'
+#    require 'yaml'
 
-   token = open($new_discovery_url).read
+#    token = open($new_discovery_url).read
 
-   data = YAML.load(IO.readlines('user-data')[1..-1].join)
-   if data['coreos'].key? 'etcd'
-     data['coreos']['etcd']['discovery'] = token
-   end
-   if data['coreos'].key? 'etcd2'
-     data['coreos']['etcd2']['discovery'] = token
-   end
+#    data = YAML.load(IO.readlines('cloud-config.yml')[1..-1].join)
+#    if data['coreos'].key? 'etcd'
+#      data['coreos']['etcd']['discovery'] = token
+#    end
+#    if data['coreos'].key? 'etcd2'
+#      data['coreos']['etcd2']['discovery'] = token
+#    end
 
-   yaml = YAML.dump(data)
-   File.open('user-data', 'w') { |file| file.write("#cloud-config\n\n#{yaml}") }
-  end
-end
+#    yaml = YAML.dump(data)
+#    File.open('cloud-config.yml', 'w') { |file| file.write("#cloud-config\n\n#{yaml}") }
+#   end
+# end
 
 # Attempt to apply the deprecated environment variable NUM_INSTANCES to
 # $num_instances while allowing config.rb to override it
@@ -153,8 +153,10 @@ Vagrant.configure("2") do |config|
       vb.cpus = vm_cpus
     end
 
-    ip = "172.16.0.10"
-    config.vm.network :private_network, ip: ip
+    ip_private = "172.16.1.14"
+    config.vm.network :private_network, ip: ip_private
+    ip_public = "192.168.1.14"
+    config.vm.network :public_network, ip: ip_public
 
 
     # SHARED FOLDERS
