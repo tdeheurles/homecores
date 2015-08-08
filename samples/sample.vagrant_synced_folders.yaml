@@ -1,0 +1,8 @@
+# Add this project to coreos (as the build continue inside)
+
+- name: default
+  source: c:/Users/username/repository/homecores
+  destination: /home/core/repository/homecores
+  nfs: true
+  mount_options: 'nolock,vers=3,udp,noatime'
+  disabled: false

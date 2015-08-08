@@ -6,7 +6,7 @@ require 'fileutils'
 Vagrant.require_version ">= 1.6.0"
 
 #CLOUD_CONFIG_PATH = File.join(File.dirname(__FILE__), "cloud-config.yml")
-BASHRC = File.join(File.dirname(__FILE__), "templates/.bashrc")
+#BASHRC = File.join(File.dirname(__FILE__), "templates/.bashrc")
 CONFIG = File.join(File.dirname(__FILE__), "vagrant_config.rb")
 MOUNT_POINTS = YAML::load_file('vagrant_synced_folders.yaml')
 
@@ -169,12 +169,25 @@ Vagrant.configure("2") do |config|
     #   config.vm.provision :shell, :inline => "mv /tmp/vagrantfile-user-data /var/lib/coreos-vagrant/", :privileged => true
     # end
 
-    # =============== BASHRC
+    # =============== RCFILES
     # =============================================
-    config.vm.provision :shell, :inline => "rm /home/core/.bashrc"
-    config.vm.provision :file, :source => "templates/.bashrc",    :destination => "/home/core/.bashrc"
-    config.vm.provision :file, :source => "templates/.zshrc",     :destination => "/home/core/.zshrc"
-    config.vm.provision :file, :source => "templates/zsh",        :destination => "/home/core/zsh"
-    config.vm.provision :file, :source => "templates/.oh-my-zsh", :destination => "/home/core/.oh-my-zsh"
+    if $shell_to_install == "zsh"
+      config.vm.provision :shell, :inline => "rm /home/core/.bashrc"
+      
+      config.vm.provision :file,  :source => "templates/zsh/.bashrc",    :destination => "/home/core/.bashrc"
+      config.vm.provision :file,  :source => "templates/zsh/.zshrc",     :destination => "/home/core/.zshrc"
+      config.vm.provision :file,  :source => "templates/zsh/zsh",        :destination => "/home/core/zsh"
+      config.vm.provision :file,  :source => "templates/zsh/.oh-my-zsh", :destination => "/home/core/.oh-my-zsh"
+      
+      config.vm.provision :shell, :inline => "chmod 755 /home/core/zsh/bin/zsh"
+    end
+
+    if $shell_to_install == "bash"
+      config.vm.provision :shell, :inline => "rm /home/core/.bashrc"
+      config.vm.provision :file,  :source => "templates/bash/.bashrc",    :destination => "/home/core/.bashrc"
+    end
+
+    config.vm.provision :shell, :inline => "cd /home/core/repository/homecores ; ./generate.sh"
+    config.vm.provision :shell, :inline => "cd /home/core/repository/homecores ; ./update_user_data.sh"
   end
 end

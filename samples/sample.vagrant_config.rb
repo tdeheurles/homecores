@@ -15,10 +15,11 @@ $vm_cpus = 1
 $expose_docker_tcp=2375
 
 # Enable port forwarding from guest(s) to host machine, syntax is: { 80 => 8080 }, auto correction is enabled by default.
-$forwarded_ports = { 80 => 9080, 443 => 4443 }
+$forwarded_ports = { 80 => 9080, 443 => 4443, 1234 => 1234 }
 
-# shell to install (bash or zsh)
+# shell to install (bsh or zsh)
 $shell_to_install = "zsh"
+
 
 # coreos-vagrant is configured through a series of configuration
 # options (global ruby variables) which are detailed below. To modify
