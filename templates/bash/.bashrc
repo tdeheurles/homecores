@@ -17,9 +17,6 @@ alias l="ls -lthg --color"
 alias la="l -A"
 alias ct="clear && pwd"
 
-# debian
-# ======
-alias debian="docker run -ti --rm debian:latest bash"
 
 # DOCKER
 # ======
@@ -27,6 +24,10 @@ alias dps="docker ps"
 alias dpsa="docker ps -a"
 alias dim="docker images"
 # alias dclean="docker kill $(docker ps -q) && docker rm $(docker ps -a -q) && docker rmi $(docker images -q -f dangling=true)"
+
+# debian
+# ======
+alias debian="docker run -ti --rm debian:latest bash"
 
 # GIT
 # ===
@@ -37,7 +38,9 @@ alias gp="git push"
 alias gst="git status"
 alias gcmsg="git commit -m"
 alias gchmodx="git update-index --chmod=+x"
-function gctd() { git clone https://github.com/tdeheurles/$1 }
+function gctd() { 
+  git clone https://github.com/tdeheurles/$1 ;
+}
 
 # KUBERNETES
 # ==========
@@ -172,9 +175,7 @@ alias scc="see-cloud-config"
 
 # SYSTEM JOURNAL
 # ==============
-function jo() {
-  journalctl --unit=$@
-}
-
 alias jcc="journalctl -b --no-pager -u \"user-cloudinit@var-lib-coreos\x2dinstall-user_data.service\""
-
+function jo() {
+  journalctl --unit=$@ ;
+}
