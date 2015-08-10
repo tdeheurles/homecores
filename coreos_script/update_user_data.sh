@@ -1,9 +1,6 @@
 #! /bin/bash
 
-# This script need to be run inside coreos.
-# We first install a version and then update de cloud-config
-
-. ./config.sh
+. ./auto_generated/coreos-config.sh
 
 cp $cloud_config_template_file $cloud_config_file
 
@@ -16,3 +13,10 @@ sed "s|__DISCOVERY_TOKEN__|$discovery_token|g"   $cloud_config_file > $cloud_con
 sed "s|__IMAGE_KUBERNETES__|$image_kubernetes|g" $cloud_config_file > $cloud_config_file
 sed "s|__IP_PUBLIC__|$public_ip|g"               $cloud_config_file > $cloud_config_file
 
+echo " "
+echo -e "\e[94mwill restart\e[39m"
+echo -e "\e[94mtry to connect in a minute with :\e[39m"
+echo " "
+echo -e "        \e[92mssh core@$public_ip\e[39m"
+echo " "
+coreos-cloudinit -validate=true --from-file $cloud_config_file && sudo cp $cloud_config_file $user_data_file && sudo reboot

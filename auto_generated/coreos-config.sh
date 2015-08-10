@@ -1,0 +1,12 @@
+coreos_hostname="tdeheurles1-vm-core"
+shell_to_install="bash"
+password='$6$rounds=4096$NcumRoHEElum$YaBFBilDryCX4pe4o/HpuP/ksqW.SgMVTnpB0YiJeEzwFj1SaLOrIFgA3xEXRDuyPBOI4f5RkAtcBYEPVv8wR/'
+id_rsa='AAAAB3NzaC1yc2EAAAADAQABAAACAQCdUIX8ToKiNvvrJTdNkDC/GRBWv5oOG4wXEKEbUQ3mxirZEPngcMwW06Mzf5DQlsPnPHblx9Th7rJM9HDSr65R+0qtMzOfUjIV3H5MLyD87ICEGPSUxBS5BaZ/oFIwESa9F2SnxhQ/AGinJn9fGDqhKMN0kWWZSrBQM3POe+fLXjXLFE/+aJ7KOq5eIsPF51lUPuOKeDFAcQ5N+DIGICb5SK53AAS+kcph0NsrQWQGmIbGBMX+5iI69i3LZ3Z1okHOF0o21pZkG/TZJap38D7/dVEa3P15nKLSYpl1QT9NrWmd9hdBf7Fiz8AIUl0gTFEAml2v3VEJqh3wo2biD+3nw/3t15/KFVe623lDMrFt8t2kIqMIYoPi3iHEpxiDuLvwaYcwAinQaa8OZ75YfifwLqmYJUPWSfUUAMErZ/a5m3barPyOohGW0sQqYGBx+XhcPNe+aq3ItTj/xp+XGcWHt46zGaBTfe/SNFKAFu7Q0L3AtgzAF21dbaQJDs8fziCcG7+ql1PAiRdF81mldNA+8EjtQO6BSDfc/Iv8CwgIf45uX0sM0XFsRVkvg0bYhAA8Wn1xK555DHqsgmEDvtJxtqHAgZIEHG6JE19cQa3/SHH50OnXH4fGa3DEoXEFb//3QCUrhkpt8GWqQgHWfIwxRPdnN531r3Rt9ke1DuHf0w== tdeheurles@gmail.com'
+discovery_token='9c216d6d409b88cb41e7e8e6f31dc8e1'
+image_kubernetes='gcr.io/google_containers/hyperkube:v1.0.1'
+network_mask="192.168.1"
+user_data_file="/var/lib/coreos-vagrant/vagrantfile-user-data"
+
+cloud_config_template_file="templates/template.cloud-config.yml"
+cloud_config_file="auto_generated/cloud-config.yml"
+public_ip=`ifconfig | grep $network_mask | awk '{print $2}'`

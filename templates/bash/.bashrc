@@ -2,7 +2,7 @@
 # ================== from tdeheurles@gmail.com 
 # ZSHRC
 # =====
-alias edz="vi ~/.zshrc && uprc"
+alias edz="vi ~/.bashrc && uprc"
 alias uprc="exec -l $SHELL"
 
 
@@ -162,14 +162,14 @@ alias catcloudconf="sudo cat /var/lib/coreos-install/user_data"
 # CLOUD-CONFIG
 # ============
 cloud_config="$repository/homecores/templates/template.cloud-config.yml"
-alias validate-cloud-config="coreos-cloudinit -validate=true --from-file $cloud_config"
-alias edit-cloud-config="vi $cloud_config && validate-cloud-config"
-alias update-cloud-config="repo ; cd homecores ; ./update_user_data.sh"
-alias edit-cloud-config-config="repo ; cd homecores ; vi config.sh ; ./generate.sh"
-alias see-cloud-config="sudo cat /var/lib/coreos-install/user_data"
-alias ecc="edit-cloud-config"
-alias eccc="edit-cloud-config-config"
-alias ucc="update-cloud-config && sudo reboot"
+#alias validate-cloud-config="coreos-cloudinit -validate=true --from-file $cloud_config"
+#alias edit-cloud-config="vi $cloud_config && validate-cloud-config"
+#alias update-cloud-config="repo ; cd homecores ; ./update_user_data.sh"
+#alias edit-cloud-config-config="repo ; cd homecores ; vi config.sh ; ./generate.sh"
+alias see-cloud-config="sudo cat /var/lib/coreos-vagrant/vagrantfile-user-data"
+#alias ecc="edit-cloud-config"
+#alias eccc="edit-cloud-config-config"
+#alias ucc="update-cloud-config && sudo reboot"
 alias scc="see-cloud-config"
 
 

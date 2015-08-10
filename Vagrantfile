@@ -5,12 +5,12 @@ require 'fileutils'
 
 Vagrant.require_version ">= 1.6.0"
 
-CONFIG = File.join(File.dirname(__FILE__), "vagrant_config.rb")
-MOUNT_POINTS = YAML::load_file('vagrant_synced_folders.yaml')
+CONFIG = File.join(File.dirname(__FILE__), "auto_generated/vagrant_config.rb")
+MOUNT_POINTS = YAML::load_file('auto_generated/vagrant_synced_folders.yaml')
 
 # Defaults for config options defined in CONFIG
+$core_hostname = ""
 $num_instances = 1
-$instance_name_prefix = $core_hostname  # TODO =>  need automation here !
 $update_channel = "alpha"
 $image_version = "current"
 $enable_serial_logging = false
@@ -106,8 +106,8 @@ Vagrant.configure("2") do |config|
     config.vbguest.auto_update = false
   end
 
-  config.vm.define vm_name = $instance_name_prefix do |config|
-    config.vm.hostname = vm_name
+  config.vm.define vm_name = $core_hostname do |config|
+    config.vm.hostname = $core_hostname
     config.vm.provider :virtualbox do |vb|
       vb.gui = vm_gui
       vb.memory = vm_memory
@@ -197,7 +197,7 @@ Vagrant.configure("2") do |config|
 
     # =============== CREATING CLOUD-CONFIG & RESTART
     # ===============================================
-    config.vm.provision :shell, keep_color: true, :inline => "cd /home/core/repository/homecores ; ./update_user_data.sh"
-
+    config.vm.provision :shell, keep_color: true, 
+                        :inline => "cd /home/core/repository/homecores ; ./coreos_script/update_user_data.sh"
   end
 end

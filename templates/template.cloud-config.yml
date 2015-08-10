@@ -12,6 +12,10 @@ users:
 coreos:
   etcd2:
 
+    # Environment="ETCD_INITIAL_CLUSTER_STATE=new"
+    # Environment="ETCD_INITIAL_CLUSTER=yao=http://10.20.20.111:2380"
+    # Environment="ETCD_NAME=yao"
+
     # -initial-advertise-peer-urls http://10.0.1.10:2380 \
     # -listen-peer-urls http://10.0.1.10:2380 \
     # -listen-client-urls http://10.0.1.10:2379,http://127.0.0.1:2379 \
@@ -35,7 +39,7 @@ coreos:
     listen-peer-urls: http://__IP_PUBLIC__:2380
     # listen-peer-urls 'http://localhost:2380,http://localhost:7001'
     #         list of URLs to listen on for peer traffic.
-    listen-client-urls: http://0.0.0.0:2379
+    listen-client-urls: http://__IP_PUBLIC__:2379, http://127.0.0.1:2379
     # listen-client-urls 'http://localhost:2379,http://localhost:4001'
     #         list of URLs to listen on for client traffic.
     # cors ''
