@@ -5,20 +5,18 @@ require 'fileutils'
 
 Vagrant.require_version ">= 1.6.0"
 
-#CLOUD_CONFIG_PATH = File.join(File.dirname(__FILE__), "cloud-config.yml")
-#BASHRC = File.join(File.dirname(__FILE__), "templates/.bashrc")
 CONFIG = File.join(File.dirname(__FILE__), "vagrant_config.rb")
 MOUNT_POINTS = YAML::load_file('vagrant_synced_folders.yaml')
 
 # Defaults for config options defined in CONFIG
 $num_instances = 1
-$instance_name_prefix = "core"
+$instance_name_prefix = "shin-vm-coreos"
 $update_channel = "alpha"
 $image_version = "current"
 $enable_serial_logging = false
 $share_home = false
 $vm_gui = false
-$vm_memory = 1024
+$vm_memory = 6000
 $vm_cpus = 1
 $linux_shared_folders = {}
 $windows_shared_folders = {}
@@ -111,28 +109,41 @@ Vagrant.configure("2") do |config|
 
   config.vm.define vm_name = $instance_name_prefix do |config|
     config.vm.hostname = vm_name
-
-
-    # =============== NETWORK
-    # =============================================
-    if $expose_docker_tcp
-      config.vm.network "forwarded_port", guest: 2375, host: $expose_docker_tcp, auto_correct: true
-    end
-
-    $forwarded_ports.each do |guest, host|
-      config.vm.network "forwarded_port", guest: guest, host: host, auto_correct: true
-    end
-
     config.vm.provider :virtualbox do |vb|
       vb.gui = vm_gui
       vb.memory = vm_memory
       vb.cpus = vm_cpus
     end
 
-    ip_private = "172.16.1.14"
+
+
+    # =============== NETWORK
+    # =============================================
+    # share docker
+    if $expose_docker_tcp
+      config.vm.network "forwarded_port", guest: 2375, host: $expose_docker_tcp, auto_correct: true
+    end
+
+    # forward ports
+    $forwarded_ports.each do |guest, host|
+      config.vm.network "forwarded_port", guest: guest, host: host, auto_correct: true
+    end
+
+    # private network :
+    #   - needed by nfs
+    #   - request admin privilege window
+    ip_private = "172.16.1.100"
     config.vm.network :private_network, ip: ip_private
-    ip_public = "192.168.1.14"
-    config.vm.network :public_network, ip: ip_public
+    
+    # Workaround for local network issue
+    #   1. Uncomment these two lines and comment the third
+    #   2. Vagrant up then vagrant destroy
+    #   3. comment these two lines and uncomment the third
+    #   4. vagrant up
+    #ip_public = "192.168.1.0"
+    #config.vm.network :public_network, ip: ip_public, mask: "255.255.255.0"
+    config.vm.network :public_network, mask: "255.255.255.0"
+
 
 
     # =============== SHARED FOLDERS
@@ -164,13 +175,9 @@ Vagrant.configure("2") do |config|
     rescue
     end
 
-    # if File.exist?(CLOUD_CONFIG_PATH)
-    #   config.vm.provision :file, :source => "#{CLOUD_CONFIG_PATH}", :destination => "/tmp/vagrantfile-user-data"
-    #   config.vm.provision :shell, :inline => "mv /tmp/vagrantfile-user-data /var/lib/coreos-vagrant/", :privileged => true
-    # end
-
     # =============== RCFILES
     # =============================================
+    # ZSH
     # if $shell_to_install == "zsh"
     #   config.vm.provision :shell, :inline => "rm /home/core/.bashrc"
       
@@ -182,12 +189,16 @@ Vagrant.configure("2") do |config|
     #   config.vm.provision :shell, :inline => "chmod 755 /home/core/zsh/bin/zsh"
     # end
 
+    # BASH
     if $shell_to_install == "bash"
       config.vm.provision :shell, :inline => "rm /home/core/.bashrc"
-      config.vm.provision :file,  :source => "templates/bash/.bashrc",    :destination => "/home/core/.bashrc"
+      config.vm.provision :file,  :source => "templates/bash/.bashrc",    
+                                  :destination => "/home/core/.bashrc"
     end
 
-    config.vm.provision :shell, :inline => "cd /home/core/repository/homecores ; ./generate.sh"
+    # =============== CREATING CLOUD-CONFIG & RESTART
+    # ===============================================
     config.vm.provision :shell, :inline => "cd /home/core/repository/homecores ; ./update_user_data.sh"
+    config.vm.provision :shell, :inline => "installation done"
   end
 end
