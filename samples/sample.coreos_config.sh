@@ -8,7 +8,7 @@ discovery_token=''
 # server name : use something like :
 #  - vagrant: username-vm-coreos
 #  - vagrant: username-bm-coreos
-coreos_hostname="username-_m-coreos"
+coreos_hostname="forget-hostname-core"
 
 # kubernetes
 image_kubernetes='gcr.io/google_containers/hyperkube:v1.0.1'

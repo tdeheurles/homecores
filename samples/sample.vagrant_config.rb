@@ -1,8 +1,7 @@
 # Size of the CoreOS cluster created by Vagrant
-$num_instances=1
-$vm_gui = false
 $vm_memory = 2048
 $vm_cpus = 1
+$core_hostname = "forget-hostname-core"
 
 # Enable port forwarding of Docker TCP socket
 # Set to the TCP port you want exposed on the *host* machine, default is 2375

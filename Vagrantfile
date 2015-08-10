@@ -21,7 +21,7 @@ $vm_cpus = 1
 $linux_shared_folders = {}
 $windows_shared_folders = {}
 $forwarded_ports = {}
-
+$core_hostname = ""
 
 module OS
   def OS.windows?
@@ -108,7 +108,7 @@ Vagrant.configure("2") do |config|
   end
 
   config.vm.define vm_name = $instance_name_prefix do |config|
-    config.vm.hostname = vm_name
+    config.vm.hostname = $core_hostname
     config.vm.provider :virtualbox do |vb|
       vb.gui = vm_gui
       vb.memory = vm_memory
