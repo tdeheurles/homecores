@@ -13,6 +13,10 @@ For vagrant :
 - copy `sample.vagrant_config.sh` to `coreos_config.sh`
 - copy `sample.vagrant_synced_folders.sh` to `coreos_config.sh`
 
+## baremetal
+
+Start by copying `samples/sample.coreos_config.sh` to `config.sh`
+
 ## Issues
 
 0. There is a network issue appearing sometime. If the result of `ifconfig` inside coreos does not give the local network in ipv4:  
