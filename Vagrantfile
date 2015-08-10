@@ -10,7 +10,7 @@ MOUNT_POINTS = YAML::load_file('vagrant_synced_folders.yaml')
 
 # Defaults for config options defined in CONFIG
 $num_instances = 1
-$instance_name_prefix = "shin-vm-coreos"
+$instance_name_prefix = "shin-vm-coreos"  # TODO =>  need automation here !
 $update_channel = "alpha"
 $image_version = "current"
 $enable_serial_logging = false
@@ -42,7 +42,9 @@ module OS
 end
 
 
-required_plugins = %w(vagrant-triggers)
+#require './vagrant-provision-reboot-plugin'
+
+required_plugins = %w(vagrant-triggers vagrant-reload)
 
 # check either 'http_proxy' or 'HTTP_PROXY' environment variable
 if OS.windows?
@@ -83,9 +85,7 @@ end
 
 Vagrant.configure("2") do |config|
   # always use Vagrants insecure key
-  config.ssh.insert_key = false
-  config.ssh.username
-
+  config.ssh.insert_key       = false
 
   # =============== IMAGE
   # =============================================
@@ -198,7 +198,7 @@ Vagrant.configure("2") do |config|
 
     # =============== CREATING CLOUD-CONFIG & RESTART
     # ===============================================
-    config.vm.provision :shell, :inline => "cd /home/core/repository/homecores ; ./update_user_data.sh"
-    config.vm.provision :shell, :inline => "installation done"
+    config.vm.provision :shell, keep_color: true, :inline => "cd /home/core/repository/homecores ; ./update_user_data.sh"
+
   end
 end

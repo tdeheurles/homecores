@@ -15,7 +15,17 @@ For vagrant :
 
 ## baremetal
 
-Start by copying `samples/sample.coreos_config.sh` to `config.sh`
+Start by copying `samples/sample.coreos_config.sh` to `config.sh` and update it :  
+```
+cp samples/sample.coreos_config.sh config.sh
+vi config.sh
+```
+
+Finally run the update script to generate and config the cloud-config :  
+```
+./update_user_data.sh
+```
+
 
 ## Issues
 

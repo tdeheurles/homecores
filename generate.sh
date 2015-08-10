@@ -7,8 +7,6 @@
 
 cp $cloud_config_template_file $cloud_config_file
 
-public_ip=`ifconfig | grep $network_mask | awk '{print $2}'`
-
 echo "Generating cloud-config for $public_ip"
 
 sed "s|__PASSWORD__|$password|g"                 $cloud_config_file > $cloud_config_file
