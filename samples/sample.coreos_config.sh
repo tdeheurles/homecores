@@ -31,3 +31,5 @@ main_folder="`pwd`"
 
 cloud_config_template_file="$templates/template.cloud-config.yml"
 cloud_config_file="$main_folder/cloud-config.yml"
+
+public_ip=`ifconfig | grep $network_mask | awk '{print $2}'`
