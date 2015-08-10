@@ -1,5 +1,5 @@
 # Size of the CoreOS cluster created by Vagrant
-$vm_memory = 2048
+$vm_memory = 5000
 $vm_cpus = 1
 $core_hostname = "forget-hostname-core"
 

@@ -10,7 +10,7 @@ MOUNT_POINTS = YAML::load_file('vagrant_synced_folders.yaml')
 
 # Defaults for config options defined in CONFIG
 $num_instances = 1
-$instance_name_prefix = "shin-vm-coreos"  # TODO =>  need automation here !
+$instance_name_prefix = $core_hostname  # TODO =>  need automation here !
 $update_channel = "alpha"
 $image_version = "current"
 $enable_serial_logging = false
@@ -21,7 +21,6 @@ $vm_cpus = 1
 $linux_shared_folders = {}
 $windows_shared_folders = {}
 $forwarded_ports = {}
-$core_hostname = ""
 
 module OS
   def OS.windows?
@@ -108,7 +107,7 @@ Vagrant.configure("2") do |config|
   end
 
   config.vm.define vm_name = $instance_name_prefix do |config|
-    config.vm.hostname = $core_hostname
+    config.vm.hostname = vm_name
     config.vm.provider :virtualbox do |vb|
       vb.gui = vm_gui
       vb.memory = vm_memory
