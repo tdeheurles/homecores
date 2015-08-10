@@ -2,7 +2,6 @@
 
 . ./config.sh
 
-# only work with baremetal
 ./generate.sh
 
 echo " "
