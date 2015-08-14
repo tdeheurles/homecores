@@ -276,3 +276,4 @@ function jo() {
 
 alias jcc="journalctl -b --no-pager -u \"user-cloudinit@var-lib-coreos\x2dinstall-user_data.service\""
 
+alias e_last_log="sudo journalctl -f -t etcd2"

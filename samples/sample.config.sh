@@ -8,12 +8,6 @@ coreos_hostname="forget-hostname-core"
 # cluster
 discovery_token=''
 
-# kubernetes
-image_kubernetes='gcr.io/google_containers/hyperkube:v1.0.1'
-
-# The mask of the local network used
-network_mask="192.168.1"
-
 # security
 password=''
 id_rsa=''
@@ -23,6 +17,13 @@ id_rsa=''
 #user_data_file="/var/lib/coreos-install/user_data"
 #   Vagrant :
 user_data_file="/var/lib/coreos-vagrant/vagrantfile-user-data"
+
+# kubernetes
+image_kubernetes='gcr.io/google_containers/hyperkube:v1.0.1'
+
+# The mask of the local network used
+network_mask="192.168.1"
+
 
 
 
@@ -38,3 +39,8 @@ shell_to_install="bash"
 
 # to simplify compatibility cygwin/windows
 current_project_folder="c:/Users/username/repository/homecores"
+
+public_network_to_use="Qualcomm Atheros AR8151 PCI-E Gigabit Ethernet Controller (NDIS 6.20)"
+
+# Virtual box folder
+#path_to_virtual_box="C:/Program\ Files/Oracle/VirtualBox"

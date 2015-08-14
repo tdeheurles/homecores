@@ -1,9 +1,9 @@
 # homecores
 
 ### TODO
-- change update_user_data to work with vagrant
-- write README.md
-- Automate synced_folder => homcores needed
+- write tutorial in README.md
+- uncomment zsh in vagrant
+- bootstrap alone
 
 ### Config
 For baremetal or vagrant :
@@ -23,7 +23,7 @@ vi config.sh
 
 Finally run the update script to generate and config the cloud-config :  
 ```
-./update_user_data.sh
+./run_vagrant.sh
 ```
 
 

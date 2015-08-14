@@ -141,8 +141,8 @@ Vagrant.configure("2") do |config|
     #   4. vagrant up
     #ip_public = "192.168.1.0"
     #config.vm.network :public_network, ip: ip_public, mask: "255.255.255.0"
-    config.vm.network :public_network, mask: "255.255.255.0"
-
+    config.vm.network :public_network,mask: "255.255.255.0",
+                      bridge: "#{$public_network_to_use}"
 
 
     # =============== SHARED FOLDERS
