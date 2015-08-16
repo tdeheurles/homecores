@@ -46,6 +46,10 @@ current_project_folder="c:/Users/username/repository/homecores"
 # - copy/paste the Name result
 public_network_to_use="Qualcomm Atheros AR8151 PCI-E Gigabit Ethernet Controller (NDIS 6.20)"
 
+# turn this on to forget clustering (no connection running)
+# need to have one start with this parameter to true
+local_test_cluster="false"
+
 
 
 

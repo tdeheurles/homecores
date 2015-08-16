@@ -41,7 +41,6 @@ module OS
 end
 
 
-#require './vagrant-provision-reboot-plugin'
 
 required_plugins = %w(vagrant-triggers vagrant-reload)
 
@@ -59,17 +58,12 @@ required_plugins.each do |plugin|
   exec "vagrant #{ARGV.join(' ')}" if need_restart
 end
 
-# Attempt to apply the deprecated environment variable NUM_INSTANCES to
-# $num_instances while allowing config.rb to override it
-# if ENV["NUM_INSTANCES"].to_i > 0 && ENV["NUM_INSTANCES"]
-#   $num_instances = ENV["NUM_INSTANCES"].to_i
-# end
-
+# import ruby config
 if File.exist?(CONFIG)
   require CONFIG
 end
 
-# Use old vb_xxx config variables when set
+# # Use old vb_xxx config variables when set
 def vm_gui
   $vb_gui.nil? ? $vm_gui : $vb_gui
 end
@@ -92,7 +86,10 @@ Vagrant.configure("2") do |config|
   if $image_version != "current"
       config.vm.box_version = $image_version
   end
-  config.vm.box_url = "http://%s.release.core-os.net/amd64-usr/%s/coreos_production_vagrant.json" % [$update_channel, $image_version]
+
+  if !$local_test_cluster
+    config.vm.box_url = "http://%s.release.core-os.net/amd64-usr/%s/coreos_production_vagrant.json" % [$update_channel, $image_version]
+  end
 
   config.vm.provider :virtualbox do |v|
     # On VirtualBox, we don't have guest additions or a functional vboxsf
@@ -135,8 +132,10 @@ Vagrant.configure("2") do |config|
     config.vm.network :private_network, ip: ip_private
     
     # public network
-    config.vm.network :public_network,mask: "255.255.255.0",
-                      bridge: "#{$public_network_to_use}"
+    if !$local_test_cluster
+      config.vm.network :public_network,mask: "255.255.255.0",
+                        bridge: "#{$public_network_to_use}"
+    end
 
     # =============== SHARED FOLDERS
     # =============================================
@@ -188,16 +187,14 @@ Vagrant.configure("2") do |config|
                           :destination => "/home/core/.bashrc"
     end
 
-    # KUBERNETES
-    # config.vm.provision :file, :source => "templates/kubernetes.yaml", 
-    #                     :destination => "/etc/kubernetes/manifests/kubernetes.yaml"
+    if !$local_test_cluster
+      # KUBERNETES
+      config.vm.provision :file, :source => "templates/kubernetes.yaml", 
+                          :destination => "/etc/kubernetes/manifests/kubernetes.yaml"
 
-    # =============== CREATING CLOUD-CONFIG & RESTART
-    # ===============================================
-    # config.vm.provision :shell, keep_color: true, 
-    #                     :inline => "cd /home/core/repository/homecores ; ./coreos_script/update_user_data.sh"
-
-    config.vm.provision :shell, keep_color: true,
-                        :inline => "cd /home/core/repository/homecores ; ./coreos_script/start_services.sh"
+      
+      config.vm.provision :shell, keep_color: true,
+                          :inline => "cd /home/core/repository/homecores ; ./coreos_script/start_services.sh"
+    end
   end
 end

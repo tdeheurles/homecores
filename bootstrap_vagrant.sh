@@ -26,6 +26,7 @@ network_mask="$network_mask"
 user_data_file="$user_data_file"
 project_folder="$project_folder"
 atlas_token="$atlas_token"
+local_test_cluster="$local_test_cluster"
 
 cloud_config_template_file="templates/template.cloud-config.yml"
 cloud_config_file="auto_generated/cloud-config.yml"
@@ -50,6 +51,7 @@ cat <<EOF > auto_generated/vagrant_config.rb
 \$core_hostname         = "$coreos_hostname"
 \$shell_to_install      = "$shell_to_install"
 \$public_network_to_use = "$public_network_to_use"
+\$local_test_cluster    = "$local_test_cluster"
 EOF
 
 vagrant global-status --prune

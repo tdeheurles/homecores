@@ -13,6 +13,8 @@ chmod 755 $jq
 echo "$public_ip" > auto_generated/ip
 
 
+# =============== CONSUL ================
+# =======================================
 echo "Prepare Folders"
 consul_config_path="/etc/consul.d"
 consul_main_dir="/home/core/programs/consul"
@@ -32,8 +34,6 @@ sudo mv /tmp/consul $consul
 sudo rm /tmp/0.5.2_linux_amd64.zip
 
 
-# =============== CONSUL ================
-# =======================================
 echo "Add consul to systemd"
 
 cat <<EOF > consul.service
@@ -90,6 +90,7 @@ curl                                  \
   -H "Content-Type: application/json" \
   -d $curl_json_value                 \
   > $project_folder/auto_generated/addmember_response
+
 
 
 cat <<EOF > etcd2.service

@@ -7,8 +7,20 @@
 
 ### TODO
 - write tutorial in README.md
-- bootstrap alone
+- cluster bootstrap alone
 - test zsh/oh-my-zsh shell auto installation
+   - warning: `env: zsh: No such file or directory`
+- add ssh key and passsword
+- add 
+- local run (no connection) :
+   - enable kubelet
+- binaries :   
+   - create a script that will get all the downloads
+     - the idea is someone can pull the repo then launch a prepare and then can be ok for taking a flight
+     - kubernetes
+     - jq
+     - consul
+     - coreos box
 
 ### Config
 - copy `sample.coreos_config.sh` to `config.sh`
