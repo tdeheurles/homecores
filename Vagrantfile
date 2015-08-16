@@ -61,9 +61,9 @@ end
 
 # Attempt to apply the deprecated environment variable NUM_INSTANCES to
 # $num_instances while allowing config.rb to override it
-if ENV["NUM_INSTANCES"].to_i > 0 && ENV["NUM_INSTANCES"]
-  $num_instances = ENV["NUM_INSTANCES"].to_i
-end
+# if ENV["NUM_INSTANCES"].to_i > 0 && ENV["NUM_INSTANCES"]
+#   $num_instances = ENV["NUM_INSTANCES"].to_i
+# end
 
 if File.exist?(CONFIG)
   require CONFIG
@@ -177,27 +177,34 @@ Vagrant.configure("2") do |config|
     # =============== RCFILES
     # =============================================
     # ZSH
-    # if $shell_to_install == "zsh"
-    #   config.vm.provision :shell, :inline => "rm /home/core/.bashrc"
+    if $shell_to_install == "zsh"
+      config.vm.provision :shell, :inline => "rm /home/core/.bashrc"
       
-    #   config.vm.provision :file,  :source => "templates/zsh/.bashrc",    :destination => "/home/core/.bashrc"
-    #   config.vm.provision :file,  :source => "templates/zsh/.zshrc",     :destination => "/home/core/.zshrc"
-    #   config.vm.provision :file,  :source => "templates/zsh/zsh",        :destination => "/home/core/zsh"
-    #   config.vm.provision :file,  :source => "templates/zsh/.oh-my-zsh", :destination => "/home/core/.oh-my-zsh"
+      config.vm.provision :file, :source => "templates/zsh/.bashrc",    :destination => "/home/core/.bashrc"
+      config.vm.provision :file, :source => "templates/zsh/.zshrc",     :destination => "/home/core/.zshrc"
+      config.vm.provision :file, :source => "templates/zsh/zsh",        :destination => "/home/core/zsh"
+      config.vm.provision :file, :source => "templates/zsh/.oh-my-zsh", :destination => "/home/core/.oh-my-zsh"
       
-    #   config.vm.provision :shell, :inline => "chmod 755 /home/core/zsh/bin/zsh"
-    # end
+      config.vm.provision :shell, :inline => "chmod 755 /home/core/zsh/bin/zsh"
+    end
 
     # BASH
     if $shell_to_install == "bash"
       config.vm.provision :shell, :inline => "rm /home/core/.bashrc"
-      config.vm.provision :file,  :source => "templates/bash/.bashrc",    
-                                  :destination => "/home/core/.bashrc"
+      config.vm.provision :file, :source => "templates/bash/.bashrc",    
+                          :destination => "/home/core/.bashrc"
     end
+
+    # KUBERNETES
+    # config.vm.provision :file, :source => "templates/kubernetes.yaml", 
+    #                     :destination => "/etc/kubernetes/manifests/kubernetes.yaml"
 
     # =============== CREATING CLOUD-CONFIG & RESTART
     # ===============================================
-    config.vm.provision :shell, keep_color: true, 
-                        :inline => "cd /home/core/repository/homecores ; ./coreos_script/update_user_data.sh"
+    # config.vm.provision :shell, keep_color: true, 
+    #                     :inline => "cd /home/core/repository/homecores ; ./coreos_script/update_user_data.sh"
+
+    config.vm.provision :shell, keep_color: true,
+                        :inline => "cd /home/core/repository/homecores ; ./coreos_script/start_services.sh"
   end
 end

@@ -6,6 +6,7 @@
 coreos_hostname="forget-hostname-core"
 
 # cluster
+atlas_token=''
 discovery_token=''
 
 # security

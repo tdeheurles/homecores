@@ -1,10 +1,19 @@
 #! /bin/bash
 
+mkdir -p auto_generated
+
+if [[ -z config.sh ]]; then
+	echo "you need to prepare the config.sh file first"
+	cp samples/sample.config.sh config.sh
+	exit 1
+fi
+
 . ./config.sh
 
 project_folder="/home/core/repository/homecores"
 #public_network_to_use=`$path_to_virtual_box/VBoxManage.exe list bridgedifs | grep -e "\bName:\s*" | sed "s/\bName:\s*//g"`
 
+echo "Prepare config for different services"
 cat <<EOF > auto_generated/coreos-config.sh
 coreos_hostname="$coreos_hostname"
 shell_to_install="$shell_to_install"
@@ -15,6 +24,7 @@ image_kubernetes='$image_kubernetes'
 network_mask="$network_mask"
 user_data_file="$user_data_file"
 project_folder="$project_folder"
+atlas_token="$atlas_token"
 
 cloud_config_template_file="templates/template.cloud-config.yml"
 cloud_config_file="auto_generated/cloud-config.yml"
@@ -42,4 +52,4 @@ cat <<EOF > auto_generated/vagrant_config.rb
 EOF
 
 vagrant global-status --prune
-vagrant destroy -f && vagrant up
+vagrant destroy -f && vagrant up && vagrant ssh

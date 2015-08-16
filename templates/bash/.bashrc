@@ -151,9 +151,9 @@ function goget {
 
 # KUBECTL
 # =======
-kubectl() {
-  docker run --net=host tdeheurles/gcloud-tools kubectl $@
-}
+# kubectl() {
+#   docker run --net=host tdeheurles/gcloud-tools kubectl $@
+# }
 
 # COREOS
 # ======
@@ -181,3 +181,7 @@ function jo() {
 }
 
 alias e_last_log="sudo journalctl -f -t etcd2"
+
+# CONSUL
+# ======
+export PATH="/home/core/programs/consul:$PATH"

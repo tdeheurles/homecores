@@ -246,9 +246,9 @@ function goget {
 
 # KUBECTL
 # =======
-kubectl() {
-  docker run --net=host tdeheurles/gcloud-tools kubectl $@
-}
+# kubectl() {
+#   docker run --net=host tdeheurles/gcloud-tools kubectl $@
+# }
 
 # COREOS
 # ======

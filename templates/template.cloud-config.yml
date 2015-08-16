@@ -11,99 +11,30 @@ users:
 
 coreos:
   etcd2:
-    # version: 2.1.1
-    # =========== member flags
-    # =========================================
-    name: __HOSTNAME__
-    # name 'default'
-    #         human-readable name for this member.
-    # data-dir '${name}.etcd'
-    #         path to the data directory.
-    # snapshot-count '10000'
-    #         number of committed transactions to trigger a snapshot to disk.
-    # heartbeat-interval '100'
-    #         time (in milliseconds) of a heartbeat interval.
-    # election-timeout '1000'
-    #         time (in milliseconds) for an election to timeout.
-    listen-peer-urls: http://__IP_PUBLIC__:2380
-    # listen-peer-urls 'http://localhost:2380,http://localhost:7001'
-    #         list of URLs to listen on for peer traffic.
-    listen-client-urls: http://__IP_PUBLIC__:2379,http://127.0.0.1:2379
-    # listen-client-urls 'http://localhost:2379,http://localhost:4001'
-    #         list of URLs to listen on for client traffic.
-    # cors ''
-    #         comma-separated whitelist of origins for CORS (cross-origin resource sharing).
+    name:                        '__HOSTNAME__'
+    initial-cluster-state:       'existing'
+    initial-cluster:             '__ETCD_LEAD_NAME__=__ETCD_LEAD_PEER__,__HOSTNAME__=http://__IP_PUBLIC__:2380'
+    initial-advertise-peer-urls: 'http://__IP_PUBLIC__:2380'
+    listen-peer-urls:            'http://__IP_PUBLIC__:2380'
+    listen-client-urls:          'http://__IP_PUBLIC__:2379,http://127.0.0.1:2379'
+    advertise-client-urls:       'http://__IP_PUBLIC__:2379'
 
-    # =========== clustering flags
-    # =========================================
-    initial-advertise-peer-urls: http://__IP_PUBLIC__:2380
-    # initial-advertise-peer-urls 'http://localhost:2380,http://localhost:7001'
-    #         list of this member's peer URLs to advertise to the rest of the cluster.
-    initial-cluster: '__ETCD_LEAD_NAME__=__ETCD_LEAD_PEER__,__HOSTNAME__=http://__IP_PUBLIC__:2380'
-    #         initial cluster configuration for bootstrapping.
-    initial-cluster-state: 'existing'
-    #         initial cluster state ('new' or 'existing').
-    # initial-cluster-token: 'shin-cluster'
-    #         initial cluster token for the etcd cluster during bootstrap.
-    advertise-client-urls: http://__IP_PUBLIC__:2379
-    # advertise-client-urls 'http://localhost:2379,http://localhost:4001'
-    #         list of this member's client URLs to advertise to the public.
-    #         The client URLs advertised should be accessible to machines that talk to etcd cluster. etcd client libraries parse these URLs to connect to the cluster.
-    #discovery: https://discovery.etcd.io/__DISCOVERY_TOKEN__
-    # discovery ''
-    #         discovery URL used to bootstrap the cluster.
-    # discovery-fallback 'proxy'
-    #         expected behavior ('exit' or 'proxy') when discovery services fails.
-    # discovery-proxy ''
-    #         HTTP proxy to use for traffic to discovery service.
-    # discovery-srv ''
-    #         dns srv domain used to bootstrap the cluster.
+# config for bootstrapping
+# name:                        __HOSTNAME__
+# initial-cluster-state:       'new'
+# initial-cluster:             '__HOSTNAME__=http://__PUBLIC_IP__:2380'
+# initial-advertise-peer-urls: http://__PUBLIC_IP__:2380
+# listen-peer-urls:            http://__PUBLIC_IP__:2380
+# listen-client-urls:          http://__PUBLIC_IP__:2379, http://127.0.0.1:2379
 
-    # =========== proxy flags
-    # =========================================
-    # proxy 'off'
-    #         proxy mode setting ('off', 'readonly' or 'on').
-    # proxy-failure-wait 5000
-    #         time (in milliseconds) an endpoint will be held in a failed state.
-    # proxy-refresh-interval 30000
-    #         time (in milliseconds) of the endpoints refresh interval.
-    # proxy-dial-timeout 1000
-    #         time (in milliseconds) for a dial to timeout.
-    # proxy-write-timeout 5000
-    #         time (in milliseconds) for a write to timeout.
-    # proxy-read-timeout 0
-    #         time (in milliseconds) for a read to timeout.
-
-    # =========== security flags
-    # =========================================
-    # ca-file '' [DEPRECATED]
-    #         path to the client server TLS CA file.
-    # cert-file ''
-    #         path to the client server TLS cert file.
-    # key-file ''
-    #         path to the client server TLS key file.
-    # client-cert-auth 'false'
-    #         enable client cert authentication.
-    # trusted-ca-file ''
-    #         path to the client server TLS trusted CA key file.
-    # peer-ca-file '' [DEPRECATED]
-    #         path to the peer server TLS CA file.
-    # peer-cert-file ''
-    #         path to the peer server TLS cert file.
-    # peer-key-file ''
-    #         path to the peer server TLS key file.
-    # peer-client-cert-auth 'false'
-    #         enable peer client cert authentication.
-    # peer-trusted-ca-file ''
-    #         path to the peer server TLS trusted CA file.
-
-    # =========== logging flags
-    # =========================================
-    # debug 'false'
-    #         enable debug-level logging for etcd.
-    # log-package-levels ''
-    #         set individual packages to various log levels (eg: 'etcdmain=CRITICAL,etcdserver=DEBUG')
-
+# actual cloud-config :
+# name:                         __HOSTNAME__
+# initial-cluster-state:        'existing'
+# initial-cluster:              '__ETCD_LEAD_NAME__=__ETCD_LEAD_PEER__,__HOSTNAME__=http://__IP_PUBLIC__:2380'
+# initial-advertise-peer-urls:  http://__IP_PUBLIC__:2380
+# listen-peer-urls:             http://__IP_PUBLIC__:2380
+# listen-client-urls:           http://__IP_PUBLIC__:2379,http://127.0.0.1:2379
+# advertise-client-urls:        http://__IP_PUBLIC__:2379
 
   units:
     - name: fleet.service
@@ -112,81 +43,55 @@ coreos:
     - name: etcd2.service
       command: start
 
-    # - name: kubelet.service
-    #   command: start
-    #   content: |
-    #     [Unit]
-    #     Description=Kubernetes Kubelet
-    #     Documentation=https://github.com/kubernetes/kubernetes
+    - name: kubelet.service
+      command: start
+      content: |
+        [Unit]
+        Description=Kubernetes Kubelet
+        Documentation=https://github.com/kubernetes/kubernetes
 
-    #     [Service]
-    #     ExecStartPre=/usr/bin/mkdir -p /etc/kubernetes/manifests
-    #     ExecStart=/usr/bin/kubelet \
-    #       --api-servers=http://127.0.0.1:8080 \
-    #       --allow-privileged=true \
-    #       --config=/etc/kubernetes/manifests \
-    #       --v=2
-    #     Restart=on-failure
-    #     RestartSec=5
+        [Service]
+        ExecStartPre=/usr/bin/mkdir -p /etc/kubernetes/manifests
+        ExecStart=/usr/bin/kubelet \
+            --api-servers=http://127.0.0.1:8080 \
+            --allow-privileged=true \
+            --config=/etc/kubernetes/manifests \
+            --v=2
+        Restart=on-failure
+        RestartSec=5
 
-    #     [Install]
-    #     WantedBy=multi-user.target
+        [Install]
+        WantedBy=multi-user.target
 
-    # - name: donwnload_kubernetes.target
-    #   command: start
-    #   content: |
-    #     [Unit]
-    #     Description=Download kubernetes manifests
-    #     Documentation=https://coreos.com/blog/introducing-the-kubelet-in-coreos/
+    - name: download_kubernetes.target
+      command: start
+      content: |
+        [Unit]
+        Description=Download kubernetes manifests
+        Documentation=https://coreos.com/blog/introducing-the-kubelet-in-coreos/
 
-    #     [Service]
-    #     ExecStart=/usr/bin/wget \
-    #         https://raw.githubusercontent.com/coreos/pods/master/kubernetes.yaml \
-    #         -O /etc/kubernetes/manifests
+        [Service]
+        ExecStart=/usr/bin/wget                                                  \
+            https://raw.githubusercontent.com/coreos/pods/master/kubernetes.yaml \
+            -O /etc/kubernetes/manifests
 
-    # - name: hyberkube.target
-    #   command: start
-    #   content: |
-    #     [Unit]
-    #     Description=Download Hyperkube
-    #     Requires=etcd2.service fleet.service docker.service
-    #     After=etcd2.service fleet.service docker.service
+        [Install]
+        WantedBy=multi-user.target
 
-    #     [Service]
-    #     ExecStart=/usr/bin/docker pull __IMAGE_KUBERNETES__
+    - name: kubectl.target
+      command: start
+      content: |
+        [Unit]
+        Description=Download kubectl
 
-    # - name: kubernetes.service
-    #   command: start
-    #   content: |
-    #     [Unit]
-    #     Description=Kubernetes master services
-    #     Documentation=https://github.com/GoogleCloudPlatform/kubernetes
-    #     Requires=hyberkube.target
-    #     After=hyperkube.target
+        [Service]
+        ExecStart=/usr/bin/wget                                                                      \
+            https://storage.googleapis.com/kubernetes-release/release/v1.0.3/bin/linux/amd64/kubectl \
+            -O /home/core/kubectl/                                                                   \
+            && chmod +x /home/core/kubectl                                                           \
+            && cp /home/core/kubectl/kubectl /usr/bin/
 
-    #     [Service]
-    #     ExecStart=/usr/bin/docker run --net=host -v /var/run/docker.sock:/var/run/docker.sock __IMAGE_KUBERNETES__ /hyperkube kubelet --api_servers=http://localhost:8080 --v=2 --address=0.0.0.0 --enable_server --hostname_override=127.0.0.1 --config=/etc/kubernetes/manifests
-
-#    - name: kube-proxy.service
-#      command: start
-#      content: |
-#        [Unit]
-#        Description=Kubernetes proxy service
-#        Requires=hyperkube.target
-#        After=hyperkube.target
-#
-#        [Service]
-#        ExecStart=/usr/bin/docker run --privileged --net=host __IMAGE_KUBERNETES__ /hyperkube proxy --master=http://localhost:8080 --v=2
-
-    # - name: galliasphere.service
-    #   command: start
-    #   content: |
-    #     [Unit]
-    #     Description=site galliasphere.com
-    #     Requires=docker.service
-    #     After=docker.service
-
-    #     [Service]
-    #     ExecStart=/usr/bin/docker run -p 80:80 nginxtest:latest
+        [Install]
+        WantedBy=multi-user.target
 
 hostname: __HOSTNAME__
