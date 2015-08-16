@@ -9,4 +9,4 @@ vagrant_config.rb
 vagrant_synced_folders.yaml
 
 tmp
-auto_generated
+auto_generated/

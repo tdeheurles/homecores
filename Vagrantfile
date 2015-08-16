@@ -134,16 +134,9 @@ Vagrant.configure("2") do |config|
     ip_private = "172.16.1.100"
     config.vm.network :private_network, ip: ip_private
     
-    # Workaround for local network issue
-    #   1. Uncomment these two lines and comment the third
-    #   2. Vagrant up then vagrant destroy
-    #   3. comment these two lines and uncomment the third
-    #   4. vagrant up
-    #ip_public = "192.168.1.0"
-    #config.vm.network :public_network, ip: ip_public, mask: "255.255.255.0"
+    # public network
     config.vm.network :public_network,mask: "255.255.255.0",
                       bridge: "#{$public_network_to_use}"
-
 
     # =============== SHARED FOLDERS
     # =============================================
@@ -180,10 +173,10 @@ Vagrant.configure("2") do |config|
     if $shell_to_install == "zsh"
       config.vm.provision :shell, :inline => "rm /home/core/.bashrc"
       
-      config.vm.provision :file, :source => "templates/zsh/.bashrc",    :destination => "/home/core/.bashrc"
-      config.vm.provision :file, :source => "templates/zsh/.zshrc",     :destination => "/home/core/.zshrc"
-      config.vm.provision :file, :source => "templates/zsh/zsh",        :destination => "/home/core/zsh"
-      config.vm.provision :file, :source => "templates/zsh/.oh-my-zsh", :destination => "/home/core/.oh-my-zsh"
+      config.vm.provision :file, name: ".bashrc",    :source => "templates/zsh/.bashrc",    :destination => "/home/core/.bashrc"
+      config.vm.provision :file, name: ".zshrc",     :source => "templates/zsh/.zshrc",     :destination => "/home/core/.zshrc"
+      config.vm.provision :file, name: "zsh",        :source => "templates/zsh/zsh",        :destination => "/home/core/zsh"
+      config.vm.provision :file, name: ".oh-my-zsh", :source => "templates/zsh/.oh-my-zsh", :destination => "/home/core/.oh-my-zsh"
       
       config.vm.provision :shell, :inline => "chmod 755 /home/core/zsh/bin/zsh"
     end
@@ -191,7 +184,7 @@ Vagrant.configure("2") do |config|
     # BASH
     if $shell_to_install == "bash"
       config.vm.provision :shell, :inline => "rm /home/core/.bashrc"
-      config.vm.provision :file, :source => "templates/bash/.bashrc",    
+      config.vm.provision :file,  name: ".bashrc",:source => "templates/bash/.bashrc",    
                           :destination => "/home/core/.bashrc"
     end
 

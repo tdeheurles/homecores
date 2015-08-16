@@ -6,6 +6,7 @@
 coreos_hostname="forget-hostname-coreos"
 
 # cluster
+# ask to your team for the atlas token or follow tutrial in the README file
 atlas_token=''
 
 # security
@@ -30,17 +31,23 @@ network_mask="192.168.1"
 vm_memory=5000
 vm_cpus=1
 
-# shell to install (bsh or zsh)
-shell_to_install="bash"
-
+# shell to install (bash or zsh)
+shell_to_install="zsh"
 
 # to simplify compatibility cygwin/windows
 current_project_folder="c:/Users/username/repository/homecores"
 
+# This parameter will define vagrant public network
+# To find on your computer :
+# - open a shell
+# - go to the VirtualBox folder => (C:\Program Files\Oracle\VirtualBox)
+# - run :
+#    VBoxManage.exe list bridgedifs # for windows user
+# - copy/paste the Name result
 public_network_to_use="Qualcomm Atheros AR8151 PCI-E Gigabit Ethernet Controller (NDIS 6.20)"
 
-# Virtual box folder
-#path_to_virtual_box="C:/Program\ Files/Oracle/VirtualBox"
+
+
 
 # DEPRECATED
 # ==========

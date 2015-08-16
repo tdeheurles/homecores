@@ -1,5 +1,10 @@
 # homecores
 
+### links
+- Vagrant [documentation](https://docs.vagrantup.com/v2/)
+- CoreOS [mainpage](https://coreos.com/)
+- Consul [main](https://www.consul.io/) and [documentation](https://www.consul.io/docs/index.html)
+
 ### TODO
 - write tutorial in README.md
 - bootstrap alone
@@ -27,16 +32,16 @@ Finally run the update script to generate and config the cloud-config :
 ```
 
 
-## Issues
+### Atlas Token
+This atlas token is used by consul to join the cluster.  
+If the team have no one :
+- go to `https://atlas.hashicorp.com/`
+- create an account
+- go to the main page `https://atlas.hashicorp.com/` and click on yout username
+- enter password
+- go to `tokens`
+- give a name to have a reminder and click on generate
+- copy paste your fresh token
 
-0. There is a network issue appearing sometime. If the result of `ifconfig` inside coreos does not give the local network in ipv4:  
-   
-   - Go to vagarnt network section (~l-125/140) and uncomment these lines :  
-       - #ip_public = "192.168.1.0"
-       - #config.vm.network :public_network, ip: ip_public, mask: "255.255.255.0"
-   - run `vagrant up`
-   - run `ifconfig` inside coreos and look for the local network
-   - run `vagrant destroy`
-   - re-comment the same lines
-   - run `vagrant up`
-   - It seems to add unknown parameters to virtualbox
+### Issues
+TODO
