@@ -97,14 +97,14 @@ cat <<EOF > etcd2.service
 Description=etcd2
 
 [Service]
-ExecStart=/usr/bin/etcd2 \
-    -name:                         '$hostname'    \
-    -initial-cluster-state:        'existing'   \
-    -initial-cluster:              '$etcd_leader_name=$etcd_leader_peer_url,$hostname=http://$public_ip:2380' \
-    -initial-advertise-peer-urls:  'http://$public_ip:2380' \
-    -listen-peer-urls:             'http://$public_ip:2380' \
-    -listen-client-urls:           'http://$public_ip:2379,http://127.0.0.1:2379' \
-    -advertise-client-urls:        'http://$public_ip:2379'
+ExecStart=/usr/bin/etcd2                          \
+    --name                         '$hostname'    \
+    --initial-cluster-state        'existing'     \
+    --initial-cluster              '$etcd_leader_name=$etcd_leader_peer_url,$hostname=http://$public_ip:2380' \
+    --initial-advertise-peer-urls  'http://$public_ip:2380'                       \
+    --listen-peer-urls             'http://$public_ip:2380'                       \
+    --listen-client-urls           'http://$public_ip:2379,http://127.0.0.1:2379' \
+    --advertise-client-urls        'http://$public_ip:2379'
 
 Restart=on-failure
 RestartSec=5
