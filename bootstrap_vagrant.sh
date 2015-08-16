@@ -2,7 +2,7 @@
 
 mkdir -p auto_generated
 
-if [[ -z config.sh ]]; then
+if [[ -n config.sh ]]; then
 	echo "you need to prepare the config.sh file first"
 	cp samples/sample.config.sh config.sh
 	exit 1
