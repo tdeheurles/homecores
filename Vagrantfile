@@ -173,10 +173,10 @@ Vagrant.configure("2") do |config|
     if $shell_to_install == "zsh"
       config.vm.provision :shell, :inline => "rm /home/core/.bashrc"
       
-      config.vm.provision :file, name: ".bashrc",    :source => "templates/zsh/.bashrc",    :destination => "/home/core/.bashrc"
-      config.vm.provision :file, name: ".zshrc",     :source => "templates/zsh/.zshrc",     :destination => "/home/core/.zshrc"
-      config.vm.provision :file, name: "zsh",        :source => "templates/zsh/zsh",        :destination => "/home/core/zsh"
-      config.vm.provision :file, name: ".oh-my-zsh", :source => "templates/zsh/.oh-my-zsh", :destination => "/home/core/.oh-my-zsh"
+      config.vm.provision :file, :source => "templates/zsh/.bashrc",    :destination => "/home/core/.bashrc"
+      config.vm.provision :file, :source => "templates/zsh/.zshrc",     :destination => "/home/core/.zshrc"
+      config.vm.provision :file, :source => "templates/zsh/zsh",        :destination => "/home/core/zsh"
+      config.vm.provision :file, :source => "templates/zsh/.oh-my-zsh", :destination => "/home/core/.oh-my-zsh"
       
       config.vm.provision :shell, :inline => "chmod 755 /home/core/zsh/bin/zsh"
     end
@@ -184,7 +184,7 @@ Vagrant.configure("2") do |config|
     # BASH
     if $shell_to_install == "bash"
       config.vm.provision :shell, :inline => "rm /home/core/.bashrc"
-      config.vm.provision :file,  name: ".bashrc",:source => "templates/bash/.bashrc",    
+      config.vm.provision :file,  :source => "templates/bash/.bashrc",    
                           :destination => "/home/core/.bashrc"
     end
 
