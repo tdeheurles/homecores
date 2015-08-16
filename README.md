@@ -2,19 +2,19 @@
 
 ### TODO
 - write tutorial in README.md
-- uncomment zsh in vagrant
 - bootstrap alone
+- test zsh/oh-my-zsh shell auto installation
 
 ### Config
-For baremetal or vagrant :
-- copy `sample.coreos_config.sh` to `coreos_config.sh`
+- copy `sample.coreos_config.sh` to `config.sh`
 
-For vagrant :
-- copy `sample.vagrant_config.sh` to `coreos_config.sh`
-- copy `sample.vagrant_synced_folders.sh` to `coreos_config.sh`
+### Vagrant
+run :
+```bash
+./bootstrap_vagrant.sh
+```
 
 ## baremetal
-
 Start by copying `samples/sample.coreos_config.sh` to `config.sh` and update it :  
 ```
 cp samples/sample.coreos_config.sh config.sh

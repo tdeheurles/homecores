@@ -3,11 +3,10 @@
 # server name : use something like :
 #  - vagrant: username-vm-coreos
 #  - vagrant: username-bm-coreos
-coreos_hostname="forget-hostname-core"
+coreos_hostname="forget-hostname-coreos"
 
 # cluster
 atlas_token=''
-discovery_token=''
 
 # security
 password=''
@@ -18,9 +17,6 @@ id_rsa=''
 #user_data_file="/var/lib/coreos-install/user_data"
 #   Vagrant :
 user_data_file="/var/lib/coreos-vagrant/vagrantfile-user-data"
-
-# kubernetes
-image_kubernetes='gcr.io/google_containers/hyperkube:v1.0.1'
 
 # The mask of the local network used
 network_mask="192.168.1"
@@ -45,3 +41,10 @@ public_network_to_use="Qualcomm Atheros AR8151 PCI-E Gigabit Ethernet Controller
 
 # Virtual box folder
 #path_to_virtual_box="C:/Program\ Files/Oracle/VirtualBox"
+
+# DEPRECATED
+# ==========
+discovery_token=''
+
+# kubernetes
+image_kubernetes='gcr.io/google_containers/hyperkube:v1.0.1'
