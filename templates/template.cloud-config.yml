@@ -10,39 +10,7 @@ users:
       - docker
 
 coreos:
-  etcd2:
-    name:                        '__HOSTNAME__'
-    initial-cluster-state:       'existing'
-    initial-cluster:             '__ETCD_LEAD_NAME__=__ETCD_LEAD_PEER__,__HOSTNAME__=http://__IP_PUBLIC__:2380'
-    initial-advertise-peer-urls: 'http://__IP_PUBLIC__:2380'
-    listen-peer-urls:            'http://__IP_PUBLIC__:2380'
-    listen-client-urls:          'http://__IP_PUBLIC__:2379,http://127.0.0.1:2379'
-    advertise-client-urls:       'http://__IP_PUBLIC__:2379'
-
-# config for bootstrapping
-# name:                        __HOSTNAME__
-# initial-cluster-state:       'new'
-# initial-cluster:             '__HOSTNAME__=http://__PUBLIC_IP__:2380'
-# initial-advertise-peer-urls: http://__PUBLIC_IP__:2380
-# listen-peer-urls:            http://__PUBLIC_IP__:2380
-# listen-client-urls:          http://__PUBLIC_IP__:2379, http://127.0.0.1:2379
-
-# actual cloud-config :
-# name:                         __HOSTNAME__
-# initial-cluster-state:        'existing'
-# initial-cluster:              '__ETCD_LEAD_NAME__=__ETCD_LEAD_PEER__,__HOSTNAME__=http://__IP_PUBLIC__:2380'
-# initial-advertise-peer-urls:  http://__IP_PUBLIC__:2380
-# listen-peer-urls:             http://__IP_PUBLIC__:2380
-# listen-client-urls:           http://__IP_PUBLIC__:2379,http://127.0.0.1:2379
-# advertise-client-urls:        http://__IP_PUBLIC__:2379
-
   units:
-    - name: fleet.service
-      command: start
-
-    - name: etcd2.service
-      command: start
-
     - name: kubelet.service
       command: start
       content: |
@@ -63,21 +31,6 @@ coreos:
         [Install]
         WantedBy=multi-user.target
 
-    - name: download_kubernetes.target
-      command: start
-      content: |
-        [Unit]
-        Description=Download kubernetes manifests
-        Documentation=https://coreos.com/blog/introducing-the-kubelet-in-coreos/
-
-        [Service]
-        ExecStart=/usr/bin/wget                                                  \
-            https://raw.githubusercontent.com/coreos/pods/master/kubernetes.yaml \
-            -O /etc/kubernetes/manifests
-
-        [Install]
-        WantedBy=multi-user.target
-
     - name: kubectl.target
       command: start
       content: |
@@ -85,11 +38,12 @@ coreos:
         Description=Download kubectl
 
         [Service]
+        ExecStartPre=/usr/bin/mkdir -p /home/core/programs/
         ExecStart=/usr/bin/wget                                                                      \
             https://storage.googleapis.com/kubernetes-release/release/v1.0.3/bin/linux/amd64/kubectl \
             -O /home/core/kubectl/                                                                   \
             && chmod +x /home/core/kubectl                                                           \
-            && cp /home/core/kubectl/kubectl /usr/bin/
+            && cp /home/core/programs/kubectl /usr/bin/
 
         [Install]
         WantedBy=multi-user.target

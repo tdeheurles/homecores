@@ -15,7 +15,7 @@
 - local run (no connection) :
    - enable kubelet
 - binaries :   
-   - create a script that will get all the downloads
+   - At the first run, get all binaries and put them in the binaries folder
      - the idea is someone can pull the repo then launch a prepare and then can be ok for taking a flight
      - kubernetes
      - jq

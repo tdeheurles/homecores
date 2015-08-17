@@ -132,7 +132,7 @@ Vagrant.configure("2") do |config|
     config.vm.network :private_network, ip: ip_private
     
     # public network
-    if !$local_test_cluster
+    if $local_test_cluster == "false"
       config.vm.network :public_network,mask: "255.255.255.0",
                         bridge: "#{$public_network_to_use}"
     end
@@ -187,11 +187,12 @@ Vagrant.configure("2") do |config|
                           :destination => "/home/core/.bashrc"
     end
 
-    if !$local_test_cluster
+    if $local_test_cluster == "false"
       # KUBERNETES
       config.vm.provision :file, :source => "templates/kubernetes.yaml", 
-                          :destination => "/etc/kubernetes/manifests/kubernetes.yaml"
-
+                          :destination => "/tmp/kubernetes.yaml"
+      # config.vm.provision :shell, keep_color: true,
+      #                     :inline => "mv /tmp/kubernetes.yaml /etc/kubernetes/manifests/kubernetes.yaml"
       
       config.vm.provision :shell, keep_color: true,
                           :inline => "cd /home/core/repository/homecores ; ./coreos_script/start_services.sh"
