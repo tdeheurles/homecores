@@ -26,6 +26,10 @@
 - copy `sample.coreos_config.sh` to `config.sh`
 
 ### Vagrant
+install :
+- [VirtualBox](https://www.virtualbox.org/)
+- [Vagrant](https://www.vagrantup.com/)
+
 run :
 ```bash
 ./bootstrap_vagrant.sh
