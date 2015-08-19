@@ -82,6 +82,7 @@ one_etcd_member_ip=`consul members | grep -v $public_ip | grep alive | head -n 1
 hostname=`hostname`
 
 # if one_etcd_member_ip is empty, we need to create a new cluster
+# == BOOTSTRAPING
 if [[ -z $one_etcd_member_ip ]]; then
   cat <<EOF > etcd2.service
 [Unit]
@@ -104,6 +105,7 @@ WantedBy=multi-user.target
 EOF
 else
   # the cluster is alive, let's try to join it
+  # == BOOTSTRAPING
   etcd_members_json=`curl --silent --max-time 2 $one_etcd_member_ip:2379/v2/members`
   initial_cluster_table=`echo $etcd_members_json | jq '.members[] | "\(.name)=\(.peerURLs[0])"' | sed 's/"//g'`
 
