@@ -21,6 +21,7 @@ $vm_cpus = 1
 $linux_shared_folders = {}
 $windows_shared_folders = {}
 $forwarded_ports = {}
+$local_test_cluster = "false"
 
 module OS
   def OS.windows?
@@ -87,7 +88,7 @@ Vagrant.configure("2") do |config|
       config.vm.box_version = $image_version
   end
 
-  if !$local_test_cluster
+  if $local_test_cluster == "false"
     config.vm.box_url = "http://%s.release.core-os.net/amd64-usr/%s/coreos_production_vagrant.json" % [$update_channel, $image_version]
   end
 
