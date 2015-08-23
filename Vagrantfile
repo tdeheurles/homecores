@@ -42,7 +42,6 @@ module OS
 end
 
 
-
 required_plugins = %w(vagrant-triggers vagrant-reload)
 
 # check either 'http_proxy' or 'HTTP_PROXY' environment variable
