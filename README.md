@@ -1,5 +1,7 @@
 # homecores
 
+[![Build Status](https://travis-ci.org/tdeheurles/homecores.svg?branch=master)](https://travis-ci.org/tdeheurles/homecores)
+
 ### links
 - Vagrant [documentation](https://docs.vagrantup.com/v2/)
 - CoreOS [mainpage](https://coreos.com/)
