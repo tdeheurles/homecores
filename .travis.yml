@@ -1,0 +1,10 @@
+sudo: required
+
+services:
+  - docker
+
+before_install:
+  - docker pull docker-library/hello-world:latest
+
+script:
+  - docker run docker-library/hello-world
