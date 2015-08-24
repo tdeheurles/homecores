@@ -5,6 +5,7 @@ services:
 
 before_install:
   - docker pull ubuntu:15.04
+  - chmod +x ./test/download.sh
   - ./test/download.sh
   - cp ./test/Dockerfile ./Dockerfile
   - docker build -t homecore .
