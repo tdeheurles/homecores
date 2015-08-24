@@ -1,6 +1,7 @@
 # Bare-Metal
 config.sh
 cloud-config.yml
+test/downloads
 
 # Vagrant
 .vagrant/
