@@ -10,6 +10,7 @@ cache:
 before_install:
   - docker pull tdeheurles/vbox-vagrant
   - docker run -d tdeheurles/vbox-vagrant sh -c "while true; do ping 8.8.8.8; done" > container_id
+  - docker exec `cat container_id` sh -c "echo world"
 
 script:
   - docker exec `cat container_id` sh -c "mkdir /repository"
