@@ -55,4 +55,4 @@ cat <<EOF > auto_generated/vagrant_config.rb
 EOF
 
 vagrant global-status --prune
-vagrant destroy -f && vagrant up && vagrant ssh
+vagrant destroy -f && vagrant up
