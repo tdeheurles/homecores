@@ -7,7 +7,12 @@ before_install:
   - docker pull tdeheurles/vbox-vagrant:latest
 
 script:
+  - docker ps -a
   - docker run -d tdeheurles/vbox-vagrant:latest sh -c "while true; do ping 8.8.8.8; done" > container_id
+  - docker ps -a
   - docker exec `cat container_id` sh -c "mkdir /repository"
+  - docker ps -a
   - docker exec `cat container_id` sh -c "cd /repository ; git clone https://github.com/tdeheurles/homecores"
+  - docker ps -a
   - docker exec `cat container_id` sh -c "cd /repository/homecores ; ./test/test.sh"
+  - docker ps -a
