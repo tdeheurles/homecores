@@ -4,10 +4,10 @@ services:
   - docker
 
 before_install:
-  - docker pull tdeheurles/vbox-vagrant:latest
+  - docker pull ubuntu:latest
 
 script:
-  - docker run -d tdeheurles/vbox-vagrant:latest sh -c "while true; do sleep 5; done" > container_id
+  - docker run -d ubuntu:latest sh -c "while true; do sleep 5; done" > container_id
   - docker logs `cat container_id`
   - docker exec `cat container_id` sh -c "mkdir /repository"
   - docker logs `cat container_id`
