@@ -7,6 +7,8 @@ before_install:
   - docker pull tdeheurles/vbox-vagrant:latest
   - docker run -d tdeheurles/vbox-vagrant:latest sh -c "while true; do ping 8.8.8.8; done" > container_id
   - cat container_id
+  - docker ps
+  - docker ps -ax
   - docker exec `cat container_id` sh -c "echo world"
 
 script:
