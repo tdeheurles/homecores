@@ -8,7 +8,6 @@ before_install:
 
 script:
   - docker run -d ubuntu:latest /bin/bash -c "while true; do sleep 5; done" > container_id
+  - docker ps -a
+  - cat container_id
   - docker exec `cat container_id` ls
-  # - docker exec `cat container_id` /bin/bash -c "mkdir /repository"
-  # - docker exec `cat container_id` /bin/bash -c "cd /repository ; git clone https://github.com/tdeheurles/homecores"
-  # - docker exec `cat container_id` /bin/bash -c "cd /repository/homecores ; ./test/test.sh"
