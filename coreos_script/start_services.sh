@@ -1,4 +1,4 @@
-#! /bin/bash
+#! /usr/bin/bash
 
 echo -e "\e[92mStart Services\e[32m"
 echo "Get config"

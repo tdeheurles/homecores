@@ -7,6 +7,15 @@
 - CoreOS [mainpage](https://coreos.com/)
 - Consul [main](https://www.consul.io/) and [documentation](https://www.consul.io/docs/index.html)
 
+### Context
+- the environment used for test are :
+  - Windows 7
+  - Windows 10
+    - Git Bash
+    - VirtualBox 5.0
+    - ConEMU(x64) ==> lots of error
+
+
 ### TODO
 - write tutorial in README.md
 - cluster bootstrap alone
