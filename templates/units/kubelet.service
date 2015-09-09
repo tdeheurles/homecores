@@ -5,7 +5,7 @@ Documentation=https://github.com/kubernetes/kubernetes
 [Service]
 ExecStartPre=/usr/bin/mkdir -p /etc/kubernetes/manifests
 ExecStart=/usr/bin/kubelet \
-    --api-servers=http://127.0.0.1:8080 \
+    --api-servers=http://192.168.1.13:8080 \
     --allow-privileged=true \
     --config=/etc/kubernetes/manifests \
     --v=2

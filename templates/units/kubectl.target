@@ -1,7 +1,7 @@
 [Unit]
 Description=Download kubectl
 
-[Service]
+[Target]
 ExecStartPre=/usr/bin/mkdir -p /home/core/programs/
 ExecStart=/usr/bin/wget                                                                      \
     https://storage.googleapis.com/kubernetes-release/release/v1.0.3/bin/linux/amd64/kubectl \

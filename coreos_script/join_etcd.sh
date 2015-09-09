@@ -1,6 +1,6 @@
 #! /usr/bin/bash
 
-echo -e "\e[92mStart Services\e[32m"
+echo -e "\e[92mJoining Cluster\e[32m"
 
 echo "Get config"
 . /home/core/repository/homecores/auto_generated/coreos-config.sh
@@ -84,7 +84,8 @@ echo "Adding etcd"
 
 # need to remove our address
 one_etcd_member_ip=`$consul members | grep -v $public_ip | grep alive | head -n 1 | grep -E -o '([0-9]{1,3}[\.]){3}[0-9]{1,3}'`
-hostname=`hostname`
+echo "   cluster response at $one_etcd_member_ip"
+# hostname=`hostname`
 
 # if one_etcd_member_ip is empty, we need to create a new cluster
 # == BOOTSTRAPING
@@ -110,9 +111,8 @@ RestartSec=5
 WantedBy=multi-user.target
 EOF
 else
-  # the cluster is alive, let's try to join it
   # == BOOTSTRAPING
-  echo "consul cluster is alive, generating new etcd cluster"
+  echo "consul cluster is alive, joining as a proxy"
   etcd_members_json=`curl --silent --max-time 2 $one_etcd_member_ip:2379/v2/members`
   initial_cluster_table=`echo $etcd_members_json | jq '.members[] | "\(.name)=\(.peerURLs[0])"' | sed 's/"//g'`
 
@@ -120,17 +120,6 @@ else
   echo " -- debug: initial_cluster_table: $initial_cluster_table"
   echo " -- debug: public_ip:             $public_ip"
   echo " -- debug: one_etcd_member_ip:    $one_etcd_member_ip"
-
-  #echo "ask for joining cluster"
-  curl_json_value="{\"peerURLs\":[\"http://$public_ip:2380\"]}"
-  echo " -- debug: curl_json_value:       $curl_json_value"
-  curl                                  \
-    --silent                            \
-    $one_etcd_member_ip:2379/v2/members \
-    -XPOST                              \
-    -H "Content-Type: application/json" \
-    -d $curl_json_value                 \
-    > $project_folder/auto_generated/addmember_response
 
   # create the initial-cluster string
   initial_cluster=""
@@ -146,14 +135,10 @@ else
 Description=etcd2
 
 [Service]
-ExecStart=/usr/bin/etcd2                                                          \
-    --name                         '$hostname'                                    \
-    --initial-cluster-state        'existing'                                     \
-    --initial-advertise-peer-urls  'http://$public_ip:2380'                       \
-    --listen-peer-urls             'http://$public_ip:2380'                       \
-    --listen-client-urls           'http://$public_ip:2379,http://127.0.0.1:2379' \
-    --advertise-client-urls        'http://$public_ip:2379'                       \
-    --initial-cluster              '$initial_cluster_table,$hostname=http://$public_ip:2380'
+ExecStart=/usr/bin/etcd2                            \
+    -proxy                   on                     \
+    -listen-client-urls      http://127.0.0.1:2379  \
+    -initial-cluster         $initial_cluster_table
 
 Restart=on-failure
 RestartSec=5
@@ -166,6 +151,22 @@ fi
 sudo mv etcd2.service /etc/systemd/system/etcd2.service
 sudo systemctl enable etcd2
 sudo systemctl start etcd2
+
+
+
+
+# =============== FLANNEL ===============
+# =======================================
+echo "Starting flanneld"
+cat <<EOF > flanneld.service
+[Service]
+Environment=FLANNEL_INTERFACE=$public_ip
+EOF
+
+mkdir -p /etc/systemd/system/flanneld.service.d/
+sudo mv flanneld.service /etc/systemd/system/flanneld.service.d/10-publicip.conf
+sudo systemctl enable flanneld
+sudo systemctl start flanneld
 
 
 

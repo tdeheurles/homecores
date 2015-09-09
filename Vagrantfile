@@ -194,8 +194,11 @@ Vagrant.configure("2") do |config|
       # config.vm.provision :shell, keep_color: true,
       #                     :inline => "mv /tmp/kubernetes.yaml /etc/kubernetes/manifests/kubernetes.yaml"
       
+      # config.vm.provision :shell, keep_color: true,
+      #                     :inline => "cd /home/core/repository/homecores ; ./coreos_script/start_services.sh"
+      
       config.vm.provision :shell, keep_color: true,
-                          :inline => "cd /home/core/repository/homecores ; ./coreos_script/start_services.sh"
+                          :inline => "cd /home/core/repository/homecores ; ./coreos_script/join_etcd.sh"
     end
   end
 end

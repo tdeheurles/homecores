@@ -10,8 +10,9 @@
 ### Context
 - the environment used for test are :
   - Windows 7
+    - Cygwin 
   - Windows 10
-    - Git Bash
+    - Git Bash ==> start_service.sh doesn't work (/bin/bash not known ...)
     - VirtualBox 5.0
     - ConEMU(x64) ==> lots of error
 
