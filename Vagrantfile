@@ -115,10 +115,16 @@ Vagrant.configure("2") do |config|
 
     # =============== NETWORK
     # =============================================
-    # share docker
-    if $expose_docker_tcp
-      config.vm.network "forwarded_port", guest: 2375, host: $expose_docker_tcp, auto_correct: true
-    end
+    # Forward docker
+    #config.vm.network "forwarded_port", guest: 2375, host: $expose_docker_tcp, auto_correct: true
+      
+    # Forward for ETCD
+    # config.vm.network "forwarded_port", guest: 2379, host: 2379, auto_correct: true
+    # config.vm.network "forwarded_port", guest: 2380, host: 2380, auto_correct: true
+
+    # Forward for FLANNEL
+    # config.vm.network "forwarded_port", guest: 8285, host: 8285, auto_correct: true, protocol: 'udp'
+    # config.vm.network "forwarded_port", guest: 8472, host: 8472, auto_correct: true, protocol: 'udp'
 
     # forward ports
     $forwarded_ports.each do |guest, host|

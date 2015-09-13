@@ -1,36 +1,42 @@
 # ============================================================================
 # ================== from tdeheurles@gmail.com 
-# ZSHRC
-# =====
+
+# =================================================== ZSHRC
+# =========================================================
 alias edz="vi ~/.bashrc && uprc"
 alias uprc="exec -l $SHELL"
 
 
-# repository
-# ==========
+# ============================================== REPOSITORY
+# =========================================================
 repository="/home/core/repository"
 alias repo="cd $repository"
 
-# Affichage
-# =========
+
+# =============================================== AFFICHAGE
+# =========================================================
 alias l="ls -lthg --color"
 alias la="l -A"
 alias ct="clear && pwd"
 
 
-# DOCKER
-# ======
+# ================================================== DOCKER
+# =========================================================
 alias dps="docker ps"
 alias dpsa="docker ps -a"
 alias dim="docker images"
-# alias dclean="docker kill $(docker ps -q) && docker rm $(docker ps -a -q) && docker rmi $(docker images -q -f dangling=true)"
+alias dclean="docker kill \`docker ps -q\` && docker rm \`docker ps -a -q\` && docker rmi \`docker images -q -f dangling=true\`"
+alias dti="docker run -ti --rm"
 
-# debian
-# ======
-alias debian="docker run -ti --rm debian:latest bash"
+alias dbox="dti busybox sh"
+alias ddebian="dti debian:latest bash"
+alias dubuntu="dti ubuntu:latest bash"
 
-# GIT
-# ===
+
+
+
+# ==================================================== GIT
+# ========================================================
 alias ga="git add"
 alias gaa="git add -A"
 alias gl="git pull"
@@ -42,8 +48,9 @@ function gctd() {
   git clone https://github.com/tdeheurles/$1 ;
 }
 
-# KUBERNETES
-# ==========
+
+# ============================================== KUBERNETES
+# =========================================================
 function servst {
   echo -e "\e[94m CoreOS\e[39m" \
     && echo -n "   fleet             "   \
@@ -68,6 +75,7 @@ function servst {
     && systemctl status kube-proxy | grep --color=never Active \
     && echo " "
 }
+
 
 function kst {
   if [[ -z $1 ]]; then
@@ -103,7 +111,9 @@ function gscale {
   kubectl scale --replicas=$2 rc $1
 }
 
-# jvm-tools
+
+# ========================================= JVM-TOOLS
+# ===================================================
 function jvm-tools {
   docker run                            \
     --rm                                \
@@ -116,8 +126,9 @@ function jvm-tools {
     -ti tdeheurles/jvm-tools /bin/bash -c "$@"
 }
 
-# GOLANG
-# ======
+
+# =========================================== GOLANG
+# ==================================================
 export PATH="~/go/bin:$PATH"
 function goinstall {
   docker run \
@@ -149,39 +160,62 @@ function goget {
 }
 
 
-# KUBECTL
-# =======
-# kubectl() {
-#   docker run --net=host tdeheurles/gcloud-tools kubectl $@
-# }
-
-# COREOS
-# ======
+# ========================================== COREOS
+# =================================================
 alias catcloudconf="sudo cat /var/lib/coreos-install/user_data"
 
-# CLOUD-CONFIG
-# ============
+
+# ==================================== CLOUD-CONFIG
+# =================================================
 cloud_config="$repository/homecores/templates/template.cloud-config.yml"
-#alias validate-cloud-config="coreos-cloudinit -validate=true --from-file $cloud_config"
-#alias edit-cloud-config="vi $cloud_config && validate-cloud-config"
-#alias update-cloud-config="repo ; cd homecores ; ./update_user_data.sh"
-#alias edit-cloud-config-config="repo ; cd homecores ; vi config.sh ; ./generate.sh"
-alias see-cloud-config="sudo cat /var/lib/coreos-vagrant/vagrantfile-user-data"
-#alias ecc="edit-cloud-config"
-#alias eccc="edit-cloud-config-config"
-#alias ucc="update-cloud-config && sudo reboot"
+alias validate-cloud-config="coreos-cloudinit -validate=true --from-file $cloud_config"
+alias edit-cloud-config="vi $cloud_config && validate-cloud-config"
+alias update-cloud-config="repo ; cd homecores ; ./run_baremetal.sh"
+alias edit-cloud-config-config="repo ; cd homecores ; vi config.sh"
+alias see-cloud-config="sudo cat /var/lib/coreos-install/user_data"
+alias ecc="edit-cloud-config"
+alias eccc="edit-cloud-config-config"
+alias ucc="update-cloud-config && sudo reboot"
 alias scc="see-cloud-config"
 
 
-# SYSTEM JOURNAL
-# ==============
+# ====================================== JOURNALCTL
+# =================================================
 alias jcc="journalctl -b --no-pager -u \"user-cloudinit@var-lib-coreos\x2dinstall-user_data.service\""
-function jo() {
-  journalctl --unit=$@ ;
+alias jfu="journalctl -fu"
+
+
+# =========================================== ETCD
+# ================================================
+e_change_cluster() {
+  sudo systemctl stop etcd2
+  sudo rm -rf /home/core/bm0-coreos.etcd2/*
+  sudo systemctl start etcd2
 }
 
 alias e_last_log="sudo journalctl -f -t etcd2"
 
-# CONSUL
-# ======
-export PATH="/home/core/programs/consul:$PATH"
+alias e_new_discovery_token="echo \`curl --silent http://discovery.etcd.io/new\?size\=1\` | sed 's|https://discovery.etcd.io/||g'"
+alias e_member_list="etcdctl member list"
+alias e_cluster-health="etcdctl cluster-health"
+alias e_hostname_to_id="etcdctl member list | grep \`hostname\` | sed 's/:\s.*//g'"
+
+alias ech="e_cluster-health"
+alias eml="e_member_list"
+
+alias elsa="etcdctl ls --recursive"
+alias eget="etcdctl get "
+alias eset="etcdctl set "
+
+
+# ===================================== SYSTEMCTL
+# ===============================================
+alias sst="systemctl status"
+alias scat="systemctl cat"
+alias sstop="systemctl stop"
+alias sstart="systemctl start"
+
+
+# ======================================= FLANNEL
+# ===============================================
+alias fenv="cat /run/flannel/subnet.env ; cat /run/flannel/options.env ; scat flanneld ; journalctl -fu flanneld"
