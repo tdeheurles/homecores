@@ -21,7 +21,6 @@ $vm_cpus = 1
 $linux_shared_folders = {}
 $windows_shared_folders = {}
 $forwarded_ports = {}
-$local_test_cluster = "false"
 
 module OS
   def OS.windows?
@@ -87,9 +86,7 @@ Vagrant.configure("2") do |config|
       config.vm.box_version = $image_version
   end
 
-  if $local_test_cluster == "false"
-    config.vm.box_url = "http://%s.release.core-os.net/amd64-usr/%s/coreos_production_vagrant.json" % [$update_channel, $image_version]
-  end
+  config.vm.box_url = "http://%s.release.core-os.net/amd64-usr/%s/coreos_production_vagrant.json" % [$update_channel, $image_version]
 
   config.vm.provider :virtualbox do |v|
     # On VirtualBox, we don't have guest additions or a functional vboxsf
@@ -111,14 +108,18 @@ Vagrant.configure("2") do |config|
       vb.cpus = vm_cpus
     end
 
-
-
     # =============== NETWORK
     # =============================================
-    # share docker
-    if $expose_docker_tcp
-      config.vm.network "forwarded_port", guest: 2375, host: $expose_docker_tcp, auto_correct: true
-    end
+    # Forward docker
+    #config.vm.network "forwarded_port", guest: 2375, host: $expose_docker_tcp, auto_correct: true
+      
+    # Forward for ETCD
+    # config.vm.network "forwarded_port", guest: 2379, host: 2379, auto_correct: true
+    # config.vm.network "forwarded_port", guest: 2380, host: 2380, auto_correct: true
+
+    # Forward for FLANNEL
+    # config.vm.network "forwarded_port", guest: 8285, host: 8285, auto_correct: true, protocol: 'udp'
+    # config.vm.network "forwarded_port", guest: 8472, host: 8472, auto_correct: true, protocol: 'udp'
 
     # forward ports
     $forwarded_ports.each do |guest, host|
@@ -132,10 +133,9 @@ Vagrant.configure("2") do |config|
     config.vm.network :private_network, ip: ip_private
     
     # public network
-    if $local_test_cluster == "false"
-      config.vm.network :public_network,mask: "255.255.255.0",
-                        bridge: "#{$public_network_to_use}"
-    end
+    #   - network used bt the cluster 
+    config.vm.network :public_network,
+                      bridge: "#{$public_network_to_use}"
 
     # =============== SHARED FOLDERS
     # =============================================
@@ -187,15 +187,24 @@ Vagrant.configure("2") do |config|
                           :destination => "/home/core/.bashrc"
     end
 
-    if $local_test_cluster == "false"
-      # KUBERNETES
-      config.vm.provision :file, :source => "templates/kubernetes.yaml", 
-                          :destination => "/tmp/kubernetes.yaml"
-      # config.vm.provision :shell, keep_color: true,
-      #                     :inline => "mv /tmp/kubernetes.yaml /etc/kubernetes/manifests/kubernetes.yaml"
-      
-      config.vm.provision :shell, keep_color: true,
-                          :inline => "cd /home/core/repository/homecores ; ./coreos_script/start_services.sh"
-    end
+    config.vm.provision :file, :source => "templates/.commonrc",      :destination => "/home/core/.commonrc"
+
+
+
+    # ================== CLOUD-CONFIG
+    # ==============================================
+    config.vm.provision :file, :source => "auto_generated/cloud_config.yml", :destination => "/tmp/vagrantfile-user-data"
+    config.vm.provision :shell, :inline => "mv /tmp/vagrantfile-user-data /var/lib/coreos-vagrant/"
+
+    
+    # ================== KUBERNETES
+    # ==============================================
+    config.vm.provision :file, :source => "templates/kubernetes.yaml", 
+                        :destination => "/tmp/kubernetes.yaml"
+
+    config.vm.provision :shell, keep_color: true,
+                        :inline => "mkdir -p /etc/kubernetes/manifests"
+    config.vm.provision :shell, keep_color: true,
+                        :inline => "mv /tmp/kubernetes.yaml /etc/kubernetes/manifests/kubernetes.yaml"
   end
 end

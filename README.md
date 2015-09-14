@@ -10,65 +10,135 @@
 ### Context
 - the environment used for test are :
   - Windows 7
+    - Cygwin or git bash
+    - ConEMU(x64) ==> lots of error
   - Windows 10
-    - Git Bash
     - VirtualBox 5.0
     - ConEMU(x64) ==> lots of error
 
-
-### TODO
-- write tutorial in README.md
-- cluster bootstrap alone
-- test zsh/oh-my-zsh shell auto installation
-   - warning: `env: zsh: No such file or directory`
-- add ssh key and passsword
-- add 
-- local run (no connection) :
-   - enable kubelet
-- binaries :   
-   - At the first run, get all binaries and put them in the binaries folder
-     - the idea is someone can pull the repo then launch a prepare and then can be ok for taking a flight
-     - kubernetes
-     - jq
-     - consul
-     - coreos box
-
 ### Config
 - copy `sample.coreos_config.sh` to `config.sh`
+Go to `config.sh` and insert the needed element
+
+Add your ssh_key to the project :
+ - name : `id_rsa`
+ - run `chmod 400 id_rsa` to restrict your key
+
 
 ### Vagrant
 install :
 - [VirtualBox](https://www.virtualbox.org/)
 - [Vagrant](https://www.vagrantup.com/)
 
-run :
-```bash
-./bootstrap_vagrant.sh
+### run
+`./bootstrap_vagrant.sh`
+
+Some download will then occure
+
+### test and understand
+After the script has run, you have been `ssh` to `CoreOS`.  
+
+##### launching
+When the CoreOS VM has started, when you have ssh in, you will have to wait for some download and process to be done.  
+You can monitor these process by using this command :  
+`sst` (alias for `systemctl status`).
+
+```
+ $ sst
+● coreos1 RETURN)
+    State: running
+     Jobs: 5 queued     <==== wait for this to become 0
+   Failed: 0 units      <==== must be 0
 ```
 
-## baremetal
-Start by copying `samples/sample.coreos_config.sh` to `config.sh` and update it :  
+So first, wait for these queued jobs to end.  
+
+##### test ETCD2
+`etcd2` is our distributed KV store. Everything repose on his shoulders.  
+The command `elsa` as `etcdctl ls --recursive` should print the value stored on the cluster. Something like that must appear :  
 ```
-cp samples/sample.coreos_config.sh config.sh
-vi config.sh
+username@hostname ~ $ elsa
+/coreos.com
+/coreos.com/updateengine
+/coreos.com/updateengine/rebootlock
+/coreos.com/updateengine/rebootlock/semaphore
+/coreos.com/network
+/coreos.com/network/subnets
+/coreos.com/network/subnets/10.200.24.0-24
+/coreos.com/network/config
 ```
 
-Finally run the update script to generate and config the cloud-config :  
+##### test flannel
+flannel is the technology that create a virtual network for our docker daemons on each host.
+
+The flannel network is defined in the config.sh file :  
+For example : `flannel_network="10.200.0.0/16"`.
+
+So, run an `ifconfig` to see the networks.
+
 ```
-./run_vagrant.sh
+core@coreos1 ~ $ ifconfig                                          
+docker0: flags=4099<UP,BROADCAST,MULTICAST>  mtu 1500              
+        inet 10.200.24.1  netmask 255.255.255.0  broadcast 0.0.0.0 
+        [...]
+                                                                   
+eth0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500         
+        inet 10.0.2.15  netmask 255.255.255.0  broadcast 10.0.2.255
+        [...]
+                                                                   
+eth1: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500         
+        inet 172.16.1.100  netmask 255.255.255.0  broadcast 172.16.
+        [...]
+                                                                   
+eth2: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500         
+        inet 192.168.1.39  netmask 255.255.255.0  broadcast 192.168
+        [...]
+                                                                   
+flannel0: flags=4305<UP,POINTOPOINT,RUNNING,NOARP,MULTICAST>  mtu 1
+        inet 10.200.24.0  netmask 255.255.0.0  destination 10.200.2
+        [...]
+                                                                   
+lo: flags=73<UP,LOOPBACK,RUNNING>  mtu 65536                       
+        inet 127.0.0.1  netmask 255.0.0.0                          
+        [...]
 ```
 
+We have :
+ - docker0 : The inet `must` be the same as the flannel defined in the config. If docker0 does not appear, just run `dbox` command (docker run -ti busybox sh). It will download a small container. Inside container, run `ifconfig`, the eth0 should be something like `10.200.24.4` (corresponding to the flannel CIDR and your flannel0 network).
+ - eth0 : this is the vagrant NAT
+ - eth1 : this is the vagrant `private_ip`, it's used for NFS (folder sharing)
+ - eth2 : this one is `important`. It must corresponds to the ip defined in the `config.sh` file (network_mask="192.168.1"). It's your `public_ip`
+ - `flannel0` : This is the one we are looking for. It must be in the CIDR define in `config.sh` (flannel_network="10.200.0.0/16"). It must correpond to :
+   - `docker0`
+   - `eth0` inside containers.
+ - lo : your machine loopback
 
-### Atlas Token
-This atlas token is used by consul to join the cluster.  
-If the team have no one :
-- go to `https://atlas.hashicorp.com/`
-- create an account
-- go to the main page `https://atlas.hashicorp.com/` and click on yout username
-- enter password
-- go to `tokens`
-- give a name to have a reminder and click on generate
-- copy paste your fresh token
 
-### Issues
-TODO
+##### kubectl
+kubectl is the CLI that can be used to communicate with kubernetes.
+It's downloaded after the CoreOS is up.
+Just run `kubectl`, if the help appear. It's fine
+
+##### kubelet and kubernetes
+`sytemd` is in charge to run the `kubelet` (kubernetes part that start and stop containers). So to look if everything is fine, just look to your running containers :
+
+- kst (alias that will prompt some kubernetes informations) :
+```
+username@hostname ~ $ kst
+SERVICES
+NAME         LABELS                                    SELECTOR   IP(S)         PORT(S)
+kubernetes   component=apiserver,provider=kubernetes   <none>     10.200.20.1   443/TCP
+
+RC
+CONTROLLER   CONTAINER(S)   IMAGE(S)   SELECTOR   REPLICAS
+
+PODS
+NAME                      READY     STATUS    RESTARTS   AGE
+kube-controller-coreos1   4/4       Running   0          7m
+
+ENDPOINTS
+NAME         ENDPOINTS
+kubernetes   10.0.2.15:6443
+```
+
+If you have running pods, it's fine. The kubelet have read a config file and started them.

@@ -1,58 +1,36 @@
 #! /bin/bash
 
-mkdir -p auto_generated
-
+# control usage
 if [[ ! -f config.sh ]]; then
 	echo "you need to prepare the config.sh file first"
 	echo "open config.sh"
-	cp samples/sample.config.sh config.sh
+	cp templates/templates.config.sh config.sh
 	exit 1
 fi
 
-. ./config.sh
+echo "Control ssh key"
+if [[ ! -f id_rsa ]]; then
+	echo "you need to an ssh key"
+	echo "  - add id_rsa to the main folder"
+	exit 1
+fi
+chmod 600 id_rsa
 
-project_folder="/home/core/repository/homecores"
-#public_network_to_use=`$path_to_virtual_box/VBoxManage.exe list bridgedifs | grep -e "\bName:\s*" | sed "s/\bName:\s*//g"`
+echo "Prepare folders"
+mkdir -p auto_generated
+rm -rf auto_generated/*
 
 echo "Prepare config for different services"
-cat <<EOF > auto_generated/coreos-config.sh
-coreos_hostname="$coreos_hostname"
-shell_to_install="$shell_to_install"
-password='$password'
-id_rsa='$id_rsa'
-discovery_token='$discovery_token'
-image_kubernetes='$image_kubernetes'
-network_mask="$network_mask"
-user_data_file="$user_data_file"
-project_folder="$project_folder"
-atlas_token="$atlas_token"
-local_test_cluster="$local_test_cluster"
+./bootstrap_scripts/prepare_config_files.sh
 
-cloud_config_template_file="templates/template.cloud-config.yml"
-cloud_config_file="auto_generated/cloud-config.yml"
-public_ip=\`ifconfig | grep \$network_mask | awk '{print \$2}'\`
-EOF
-
-
-# synced_folder
-cat <<EOF  > auto_generated/vagrant_synced_folders.yaml
-- name: default
-  source: $current_project_folder
-  destination: $project_folder
-  nfs: true
-  mount_options: 'nolock,vers=3,udp,noatime'
-  disabled: false
-EOF
-
-# vagrant_config.rb
-cat <<EOF > auto_generated/vagrant_config.rb
-\$vm_memory             = $vm_memory
-\$vm_cpus               = $vm_cpus
-\$core_hostname         = "$coreos_hostname"
-\$shell_to_install      = "$shell_to_install"
-\$public_network_to_use = "$public_network_to_use"
-\$local_test_cluster    = "$local_test_cluster"
-EOF
-
+echo "Launch Vagrant"
 vagrant global-status --prune
-vagrant destroy -f && vagrant up
+vagrant destroy -f \
+&& vagrant up \
+&& echo "Vagrant is up"                             \
+&& echo "Will proceed to some async download now :" \
+&& echo "  - kubectl     |  20 Mb)"                 \
+&& echo "  - kubernetes  |     Mb)"                 \
+&& echo " "                                         \
+&& echo "Automatically ssh you in your CoreOS VM"   \
+&& ./ssh_coreos.sh

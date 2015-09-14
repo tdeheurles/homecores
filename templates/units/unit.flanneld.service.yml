@@ -1,0 +1,16 @@
+    - name: flanneld.service
+      command: start
+      drop-ins:
+        - name: 50-network-config.conf
+          content: |
+            [Unit]
+            Requires=write_public_ip.service
+            After=write_public_ip.service
+            [Service]
+            EnvironmentFile=__PUBLIC_IP_FILE_PATH__/public_ip
+            Environment=FLANNEL_INTERFACE=${PUBLIC_IP}
+            ExecStartPre=/usr/bin/etcdctl  \
+              set                          \
+                /coreos.com/network/config \
+               '{ "Network": "__FLANNEL_NETWORK__" }'
+

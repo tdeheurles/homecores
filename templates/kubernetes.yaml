@@ -23,7 +23,9 @@ spec:
     - name: "lib64"
       hostPath:
         path: "/lib64"
+
   containers:
+    # KUBE-API-SERVER
     - name: "kube-apiserver"
       image: "b.gcr.io/kuar/kube-apiserver:1.0.3"
       args:
@@ -37,16 +39,22 @@ spec:
           name: "etc-kubernetes"
         - mountPath: /var/run/kubernetes
           name: "var-run-kubernetes"
+
+    # KUBE-CONTROLLER
     - name: "kube-controller-manager"
       image: "b.gcr.io/kuar/kube-controller-manager:1.0.3"
       args:
         - "--master=http://127.0.0.1:8080"
         - "--v=2"
+
+    # KUBE-SCHEDULER
     - name: "kube-scheduler"
       image: "b.gcr.io/kuar/kube-scheduler:1.0.3"
       args:
         - "--master=http://127.0.0.1:8080"
         - "--v=2"
+
+    # KUBE_PROXY
     - name: "kube-proxy"
       image: "b.gcr.io/kuar/kube-proxy:1.0.3"
       args:
