@@ -7,6 +7,11 @@ alias edz="vi ~/.bashrc && uprc"
 alias uprc="exec -l $SHELL"
 
 
+# ==================================================== PATH
+# =========================================================
+export PATH="/home/core/programs:$PATH"
+# TODO __PROGRAMS_PATH__
+
 # ============================================== REPOSITORY
 # =========================================================
 repository="/home/core/repository"
@@ -31,8 +36,6 @@ alias dti="docker run -ti --rm"
 alias dbox="dti busybox sh"
 alias ddebian="dti debian:latest bash"
 alias dubuntu="dti ubuntu:latest bash"
-
-
 
 
 # ==================================================== GIT

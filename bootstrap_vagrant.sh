@@ -17,4 +17,12 @@ echo "Prepare config for different services"
 
 echo "Launch Vagrant"
 vagrant global-status --prune
-vagrant destroy -f && vagrant up && vagrant ssh
+vagrant destroy -f \
+&& vagrant up \
+&& echo "Vagrant is up"                             \
+&& echo "Will proceed to some async download now :" \
+&& echo "  - kubectl     |  20 Mb)"                 \
+&& echo "  - kubernetes  |     Mb)"                 \
+&& echo " "                                         \
+&& echo "Automatically ssh you in your CoreOS VM"   \
+&& vagrant ssh
