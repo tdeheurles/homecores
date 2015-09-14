@@ -24,8 +24,6 @@ units="auto_generated/units/main"
 tmp="auto_generated/tmp"
 
 
-
-
 echo "  Create files"
 mkdir -p "auto_generated/units"
 cp $template_cloud_config_file $cloud_config_file
@@ -45,14 +43,15 @@ sed -i "s|__ETCD2__||g" $cloud_config_file
 
 
 echo "  Add environment variables"
-sed -i "s|__PASSWORD__|$password|g"         $cloud_config_file
-sed -i "s|__ID_RSA__|$id_rsa|g"             $cloud_config_file
-sed -i "s|__HOSTNAME__|$coreos_hostname|g"  $cloud_config_file
-sed -i "s|__NETWORK_MASK__|$network_mask|g" $cloud_config_file
-sed -i "s|__PUBLIC_IP_FILE_PATH__|$public_ip_file_path|g" $cloud_config_file
-sed -i "s|__FLANNEL_NETWORK__|$flannel_network|g" $cloud_config_file
-sed -i "s|__PROGRAMS_PATH__|$programs_path|g" $cloud_config_file
+sed -i "s|__PASSWORD__|$password|g"                         $cloud_config_file
+sed -i "s|__ID_RSA__|$public_id_rsa|g"                      $cloud_config_file
+sed -i "s|__HOSTNAME__|$coreos_hostname|g"                  $cloud_config_file
+sed -i "s|__NETWORK_MASK__|$network_mask|g"                 $cloud_config_file
+sed -i "s|__PUBLIC_IP_FILE_PATH__|$public_ip_file_path|g"   $cloud_config_file
+sed -i "s|__FLANNEL_NETWORK__|$flannel_network|g"           $cloud_config_file
+sed -i "s|__PROGRAMS_PATH__|$programs_path|g"               $cloud_config_file
 sed -i "s|__KUBECTL_DOWNLOAD_URL__|$kubectl_download_url|g" $cloud_config_file
+
 
 echo "  remove temporary files"
 rm $tmp

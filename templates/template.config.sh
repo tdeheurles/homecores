@@ -1,17 +1,28 @@
-# BAREMETAL / VAGRANT
-# ===================
+# Size of the CoreOS cluster created by Vagrant
+vm_memory=4000
+vm_cpus=1
+
 # server name : use something like :
 #  - vagrant: username-vm-coreos
 #  - vagrant: username-bm-coreos
-coreos_hostname="forget-hostname-coreos"
+coreos_hostname="coreos-username"
 
-# cluster
-# ask to your team for the atlas token or follow tutrial in the README file
-atlas_token=''
+# shell to install (bsh or zsh)
+shell_to_install="bash"
 
-# security
-password=''
-id_rsa=''
+# The mask of the local network used
+network_mask="192.168.1"
+
+# If no cluster is provided, the VM will 
+#   start as a master
+etcd_cluster_ip="192.168.1.x"
+
+# to simplify compatibility cygwin/windows
+current_project_folder="c:/Users/username/repository/homecores"
+
+# the network interface to use for virtualbox
+# TODO: add help here
+public_network_to_use="Qualcomm Atheros AR8151 PCI-E Gigabit Ethernet Controller (NDIS 6.20)"
 
 # Uncomment one of the following
 #   BareMetal :
@@ -19,43 +30,14 @@ id_rsa=''
 #   Vagrant :
 user_data_file="/var/lib/coreos-vagrant/vagrantfile-user-data"
 
-# The mask of the local network used
-network_mask="192.168.1"
+# security
+public_id_rsa=''
 
 
-
-
-# VAGRANT ONLY
-# ============
-# Size of the CoreOS cluster created by Vagrant
-vm_memory=5000
-vm_cpus=1
-
-# shell to install (bash or zsh)
-shell_to_install="zsh"
-
-# to simplify compatibility cygwin/windows
-current_project_folder="c:/Users/username/repository/homecores"
-
-# This parameter will define vagrant public network
-# To find on your computer :
-# - open a shell
-# - go to the VirtualBox folder => (C:\Program Files\Oracle\VirtualBox)
-# - run :
-#    VBoxManage.exe list bridgedifs # for windows user
-# - copy/paste the Name result
-public_network_to_use="Qualcomm Atheros AR8151 PCI-E Gigabit Ethernet Controller (NDIS 6.20)"
-
-# turn this on to forget clustering (no connection running)
-# need to have one start with this parameter to true
-local_test_cluster="false"
-
-
-
-
-# DEPRECATED
-# ==========
-discovery_token=''
-
-# kubernetes
-image_kubernetes='gcr.io/google_containers/hyperkube:v1.0.1'
+# Not user conf
+# ===============
+project_folder="/home/core/repository/homecores"
+flannel_network="10.200.0.0/16"
+programs_path="/home/core/programs"
+kubectl_download_url="https://storage.googleapis.com/kubernetes-release/release/v1.0.3/bin/linux/amd64/kubectl"
+public_ip_file_path="/home/core/configuration/cloud_config"
