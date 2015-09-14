@@ -162,7 +162,7 @@ function goget {
 
 # ========================================== COREOS
 # =================================================
-alias catcloudconf="sudo cat /var/lib/coreos-install/user_data"
+alias catcloudconf="sudo cat /var/lib/coreos-vagrant/vagrantfile-user-data"
 
 
 # ==================================== CLOUD-CONFIG

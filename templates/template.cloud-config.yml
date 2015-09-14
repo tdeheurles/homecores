@@ -1,5 +1,7 @@
 #cloud-config
 
+hostname: __HOSTNAME__
+
 users:
   - name: core
     passwd: __PASSWORD__
@@ -10,42 +12,31 @@ users:
       - docker
 
 coreos:
+__ETCD2__
   units:
-    - name: kubelet.service
+__UNITS__
+    - name: write_public_ip.service
       command: start
       content: |
         [Unit]
-        Description=Kubernetes Kubelet
-        Documentation=https://github.com/kubernetes/kubernetes
+        Description=Systemd test
 
         [Service]
-        ExecStartPre=/usr/bin/mkdir -p /etc/kubernetes/manifests
-        ExecStart=/usr/bin/kubelet \
-            --api-servers=http://127.0.0.1:8080 \
-            --allow-privileged=true \
-            --config=/etc/kubernetes/manifests \
-            --v=2
-        Restart=on-failure
-        RestartSec=5
+        Type=oneshot
+        ExecStartPre=/usr/bin/mkdir -p __PUBLIC_IP_FILE_PATH__
+        ExecStart=/home/core/programs/write_ip.sh __PUBLIC_IP_FILE_PATH__/public_ip
 
         [Install]
         WantedBy=multi-user.target
 
-    - name: kubectl.target
-      command: start
-      content: |
-        [Unit]
-        Description=Download kubectl
+write_files:
+  # This script will get the public ipv4 that correspond
+  #   to the network mask given in the config
+  - path:        /home/core/programs/write_ip.sh
+    permissions: "0755"
+    owner:       "root"
+    content: |
+      #!/bin/bash -
+      FILE_TO_WRITE=$1
+      echo "PUBLIC_IP=`ifconfig | grep __NETWORK_MASK__ | awk '{print $2}'`" > $FILE_TO_WRITE
 
-        [Service]
-        ExecStartPre=/usr/bin/mkdir -p /home/core/programs/
-        ExecStart=/usr/bin/wget                                                                      \
-            https://storage.googleapis.com/kubernetes-release/release/v1.0.3/bin/linux/amd64/kubectl \
-            -O /home/core/kubectl/                                                                   \
-            && chmod +x /home/core/kubectl                                                           \
-            && cp /home/core/programs/kubectl /usr/bin/
-
-        [Install]
-        WantedBy=multi-user.target
-
-hostname: __HOSTNAME__

@@ -21,7 +21,6 @@ $vm_cpus = 1
 $linux_shared_folders = {}
 $windows_shared_folders = {}
 $forwarded_ports = {}
-$local_test_cluster = "false"
 
 module OS
   def OS.windows?
@@ -87,9 +86,7 @@ Vagrant.configure("2") do |config|
       config.vm.box_version = $image_version
   end
 
-  if $local_test_cluster == "false"
-    config.vm.box_url = "http://%s.release.core-os.net/amd64-usr/%s/coreos_production_vagrant.json" % [$update_channel, $image_version]
-  end
+  config.vm.box_url = "http://%s.release.core-os.net/amd64-usr/%s/coreos_production_vagrant.json" % [$update_channel, $image_version]
 
   config.vm.provider :virtualbox do |v|
     # On VirtualBox, we don't have guest additions or a functional vboxsf
@@ -110,8 +107,6 @@ Vagrant.configure("2") do |config|
       vb.memory = vm_memory
       vb.cpus = vm_cpus
     end
-
-
 
     # =============== NETWORK
     # =============================================
@@ -138,10 +133,9 @@ Vagrant.configure("2") do |config|
     config.vm.network :private_network, ip: ip_private
     
     # public network
-    if $local_test_cluster == "false"
-      config.vm.network :public_network,mask: "255.255.255.0",
-                        bridge: "#{$public_network_to_use}"
-    end
+    #   - network used bt the cluster 
+    config.vm.network :public_network,
+                      bridge: "#{$public_network_to_use}"
 
     # =============== SHARED FOLDERS
     # =============================================
@@ -192,19 +186,20 @@ Vagrant.configure("2") do |config|
       config.vm.provision :file,  :source => "templates/bash/.bashrc",    
                           :destination => "/home/core/.bashrc"
     end
+    # KUBERNETES
+    config.vm.provision :file, :source => "auto_generated/cloud_config.yml", :destination => "/tmp/vagrantfile-user-data"
+    config.vm.provision :shell, :inline => "mv /tmp/vagrantfile-user-data /var/lib/coreos-vagrant/"
 
-    if $local_test_cluster == "false"
-      # KUBERNETES
-      config.vm.provision :file, :source => "templates/kubernetes.yaml", 
-                          :destination => "/tmp/kubernetes.yaml"
-      # config.vm.provision :shell, keep_color: true,
-      #                     :inline => "mv /tmp/kubernetes.yaml /etc/kubernetes/manifests/kubernetes.yaml"
-      
-      # config.vm.provision :shell, keep_color: true,
-      #                     :inline => "cd /home/core/repository/homecores ; ./coreos_script/start_services.sh"
-      
-      config.vm.provision :shell, keep_color: true,
-                          :inline => "cd /home/core/repository/homecores ; ./coreos_script/join_etcd.sh"
-    end
+    # config.vm.provision :file, :source => "templates/kubernetes.yaml", 
+    #                     :destination => "/tmp/kubernetes.yaml"
+
+    # config.vm.provision :shell, keep_color: true,
+    #                     :inline => "mv /tmp/kubernetes.yaml /etc/kubernetes/manifests/kubernetes.yaml"
+    
+    # config.vm.provision :shell, keep_color: true,
+    #                     :inline => "cd /home/core/repository/homecores ; ./coreos_script/start_services.sh"
+    
+    # config.vm.provision :shell, keep_color: true,
+    #                     :inline => "cd /home/core/repository/homecores ; ./coreos_script/join_etcd.sh"
   end
 end
