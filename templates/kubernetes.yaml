@@ -26,33 +26,33 @@ spec:
 
   containers:
     # KUBE-API-SERVER
-    # - name: "kube-apiserver"
-    #   image: "b.gcr.io/kuar/kube-apiserver:1.0.3"
-    #   args:
-    #     - "--allow-privileged=true"
-    #     - "--etcd-servers=http://127.0.0.1:2379"
-    #     - "--insecure-bind-address=0.0.0.0"
-    #     - "--service-cluster-ip-range=10.200.20.0/24"
-    #     - "--v=2"
-    #   volumeMounts:
-    #     - mountPath: /etc/kubernetes
-    #       name: "etc-kubernetes"
-    #     - mountPath: /var/run/kubernetes
-    #       name: "var-run-kubernetes"
+    - name: "kube-apiserver"
+      image: "b.gcr.io/kuar/kube-apiserver:1.0.3"
+      args:
+        - "--allow-privileged=true"
+        - "--etcd-servers=http://127.0.0.1:2379"
+        - "--insecure-bind-address=0.0.0.0"
+        - "--service-cluster-ip-range=10.200.20.0/24"
+        - "--v=2"
+      volumeMounts:
+        - mountPath: /etc/kubernetes
+          name: "etc-kubernetes"
+        - mountPath: /var/run/kubernetes
+          name: "var-run-kubernetes"
 
     # KUBE-CONTROLLER
-    # - name: "kube-controller-manager"
-    #   image: "b.gcr.io/kuar/kube-controller-manager:1.0.3"
-    #   args:
-    #     - "--master=http://127.0.0.1:8080"
-    #     - "--v=2"
+    - name: "kube-controller-manager"
+      image: "b.gcr.io/kuar/kube-controller-manager:1.0.3"
+      args:
+        - "--master=http://127.0.0.1:8080"
+        - "--v=2"
 
     # KUBE-SCHEDULER
-    # - name: "kube-scheduler"
-    #   image: "b.gcr.io/kuar/kube-scheduler:1.0.3"
-    #   args:
-    #     - "--master=http://127.0.0.1:8080"
-    #     - "--v=2"
+    - name: "kube-scheduler"
+      image: "b.gcr.io/kuar/kube-scheduler:1.0.3"
+      args:
+        - "--master=http://127.0.0.1:8080"
+        - "--v=2"
 
     # KUBE_PROXY
     - name: "kube-proxy"

@@ -33,4 +33,4 @@ vagrant destroy -f \
 && echo "  - kubernetes  |     Mb)"                 \
 && echo " "                                         \
 && echo "Automatically ssh you in your CoreOS VM"   \
-&& vagrant ssh -- -i ./id_rsa
+&& ./ssh_coreos.sh

@@ -10,12 +10,11 @@
 ### Context
 - the environment used for test are :
   - Windows 7
-    - Cygwin 
+    - Cygwin or git bash
+    - ConEMU(x64) ==> lots of error
   - Windows 10
-    - Git Bash ==> start_service.sh doesn't work (/bin/bash not known ...)
     - VirtualBox 5.0
     - ConEMU(x64) ==> lots of error
-
 
 ### Config
 - copy `sample.coreos_config.sh` to `config.sh`
@@ -24,6 +23,7 @@ Go to `config.sh` and insert the needed element
 Add your ssh_key to the project :
  - name : `id_rsa`
  - run `chmod 400 id_rsa` to restrict your key
+
 
 ### Vagrant
 install :
@@ -37,6 +37,21 @@ Some download will then occure
 
 ### test and understand
 After the script has run, you have been `ssh` to `CoreOS`.  
+
+##### launching
+When the CoreOS VM has started, when you have ssh in, you will have to wait for some download and process to be done.  
+You can monitor these process by using this command :  
+`sst` (alias for `systemctl status`).
+
+```
+ $ sst
+● coreos1 RETURN)
+    State: running
+     Jobs: 5 queued     <==== wait for this to become 0
+   Failed: 0 units      <==== must be 0
+```
+
+So first, wait for these queued jobs to end.  
 
 ##### test ETCD2
 `etcd2` is our distributed KV store. Everything repose on his shoulders.  
@@ -103,3 +118,27 @@ We have :
 kubectl is the CLI that can be used to communicate with kubernetes.
 It's downloaded after the CoreOS is up.
 Just run `kubectl`, if the help appear. It's fine
+
+##### kubelet and kubernetes
+`sytemd` is in charge to run the `kubelet` (kubernetes part that start and stop containers). So to look if everything is fine, just look to your running containers :
+
+- kst (alias that will prompt some kubernetes informations) :
+```
+username@hostname ~ $ kst
+SERVICES
+NAME         LABELS                                    SELECTOR   IP(S)         PORT(S)
+kubernetes   component=apiserver,provider=kubernetes   <none>     10.200.20.1   443/TCP
+
+RC
+CONTROLLER   CONTAINER(S)   IMAGE(S)   SELECTOR   REPLICAS
+
+PODS
+NAME                      READY     STATUS    RESTARTS   AGE
+kube-controller-coreos1   4/4       Running   0          7m
+
+ENDPOINTS
+NAME         ENDPOINTS
+kubernetes   10.0.2.15:6443
+```
+
+If you have running pods, it's fine. The kubelet have read a config file and started them.

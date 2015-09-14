@@ -186,20 +186,25 @@ Vagrant.configure("2") do |config|
       config.vm.provision :file,  :source => "templates/bash/.bashrc",    
                           :destination => "/home/core/.bashrc"
     end
-    # KUBERNETES
+
+    config.vm.provision :file, :source => "templates/.commonrc",      :destination => "/home/core/.commonrc"
+
+
+
+    # ================== CLOUD-CONFIG
+    # ==============================================
     config.vm.provision :file, :source => "auto_generated/cloud_config.yml", :destination => "/tmp/vagrantfile-user-data"
     config.vm.provision :shell, :inline => "mv /tmp/vagrantfile-user-data /var/lib/coreos-vagrant/"
 
-    # config.vm.provision :file, :source => "templates/kubernetes.yaml", 
-    #                     :destination => "/tmp/kubernetes.yaml"
+    
+    # ================== KUBERNETES
+    # ==============================================
+    config.vm.provision :file, :source => "templates/kubernetes.yaml", 
+                        :destination => "/tmp/kubernetes.yaml"
 
-    # config.vm.provision :shell, keep_color: true,
-    #                     :inline => "mv /tmp/kubernetes.yaml /etc/kubernetes/manifests/kubernetes.yaml"
-    
-    # config.vm.provision :shell, keep_color: true,
-    #                     :inline => "cd /home/core/repository/homecores ; ./coreos_script/start_services.sh"
-    
-    # config.vm.provision :shell, keep_color: true,
-    #                     :inline => "cd /home/core/repository/homecores ; ./coreos_script/join_etcd.sh"
+    config.vm.provision :shell, keep_color: true,
+                        :inline => "mkdir -p /etc/kubernetes/manifests"
+    config.vm.provision :shell, keep_color: true,
+                        :inline => "mv /tmp/kubernetes.yaml /etc/kubernetes/manifests/kubernetes.yaml"
   end
 end
