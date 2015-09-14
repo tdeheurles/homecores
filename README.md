@@ -23,7 +23,7 @@ Go to `config.sh` and insert the needed element
 
 Add your ssh_key to the project :
  - name : `id_rsa`
- - run `chmod 600 id_rsa`
+ - run `chmod 400 id_rsa` to restrict your key
 
 ### Vagrant
 install :

@@ -5,7 +5,6 @@
         Description=ETCD2 service
         Requires=write_public_ip.service
         After=write_public_ip.service
-
         [Service]
         EnvironmentFile=__PUBLIC_IP_FILE_PATH__/public_ip
         ExecStart=/usr/bin/etcd2                                                        \
@@ -17,7 +16,6 @@
           -initial-cluster-state         new                                            \
           -advertise-client-urls         http://${PUBLIC_IP}:2379                       \
           -data-dir                      /home/core/__HOSTNAME__.etcd2
-
         [Install]
         WantedBy=multi-user.target
 
