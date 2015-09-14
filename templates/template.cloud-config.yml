@@ -4,7 +4,7 @@ hostname: __HOSTNAME__
 
 users:
   - name: core
-    passwd: __PASSWORD__
+    #passwd: __PASSWORD__
     ssh_authorized_keys:
       - ssh-rsa __ID_RSA__
     groups:

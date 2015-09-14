@@ -8,6 +8,14 @@ if [[ ! -f config.sh ]]; then
 	exit 1
 fi
 
+echo "Control ssh key"
+if [[ ! -f id_rsa ]]; then
+	echo "you need to an ssh key"
+	echo "  - add id_rsa to the main folder"
+	exit 1
+fi
+chmod 600 id_rsa
+
 echo "Prepare folders"
 mkdir -p auto_generated
 rm -rf auto_generated/*
@@ -25,4 +33,4 @@ vagrant destroy -f \
 && echo "  - kubernetes  |     Mb)"                 \
 && echo " "                                         \
 && echo "Automatically ssh you in your CoreOS VM"   \
-&& vagrant ssh
+&& vagrant ssh -- -i ./id_rsa
