@@ -5,7 +5,6 @@
 ### links
 - Vagrant [documentation](https://docs.vagrantup.com/v2/)
 - CoreOS [mainpage](https://coreos.com/)
-- Consul [main](https://www.consul.io/) and [documentation](https://www.consul.io/docs/index.html)
 
 ### Context
 - the environment used for test are :
@@ -29,9 +28,10 @@ Add your ssh_key to the project :
 install :
 - [VirtualBox](https://www.virtualbox.org/)
 - [Vagrant](https://www.vagrantup.com/)
+- [Cygwin](https://cygwin.com/install.html) as the `GitBash` uses the cmd.exe. ConEMU is not fully functionnal for ssh commands (less does not appear well for example). You can follow the cygwin part of [that guide](http://tdeheurles.github.io/How-to-install-docker-on-windows/#install-cygwin)
 
 ### run
-`./bootstrap_vagrant.sh`
+`./start.sh`
 
 Some download will then occure
 
@@ -39,9 +39,20 @@ Some download will then occure
 After the script has run, you have been `ssh` to `CoreOS`.  
 
 ##### launching
-When the CoreOS VM has started, when you have ssh in, you will have to wait for some download and process to be done.  
-You can monitor these process by using this command :  
-`sst` (alias for `systemctl status`).
+When you have ssh in, you will have to wait for some download and process to be done.  
+You can monitor these process by using the `slj` alias for `systemctl list-jobs` :  
+
+```
+core@master1 ~ $ slj
+ JOB  UNIT                   TYPE    STATE
+2265 flanneld.service        start   running
+2352 kubelet.service         start   waiting
+1315 user-cloudinit@var...   start   running
+```
+
+flanneld and kubelet need need to be downloaded. The last is the cloud-config that contains flanneld et kubelet jobs. We also can see that kubelet state is `waiting`. It waits flanneld to be started.
+
+You can also use `sst` (alias for `systemctl status`).
 
 ```
  $ sst
@@ -51,7 +62,7 @@ You can monitor these process by using this command :
    Failed: 0 units      <==== must be 0
 ```
 
-So first, wait for these queued jobs to end.  
+So first, wait for these queued jobs to end. (command does not update, re launch command ;-))
 
 ##### test ETCD2
 `etcd2` is our distributed KV store. Everything repose on his shoulders.  
@@ -68,13 +79,26 @@ username@hostname ~ $ elsa
 /coreos.com/network/config
 ```
 
-##### test flannel
+##### test FLANNEL
 flannel is the technology that create a virtual network for our docker daemons on each host.
 
 The flannel network is defined in the config.sh file :  
 For example : `flannel_network="10.200.0.0/16"`.
 
-So, run an `ifconfig` to see the networks.
+first look at the flannel environment with the alias `fenv` as `flannel environment`:  
+```
+$ fenv
+FLANNEL_NETWORK=10.200.0.0/16
+FLANNEL_SUBNET=10.200.53.1/24
+FLANNEL_MTU=1472
+FLANNEL_IPMASQ=true
+FLANNELD_IFACE=192.168.1.5
+```
+
+If the first 4 lines does not appear, flannel container should be downloading.  
+If the FLANNELD_IFACE=192.168.1.5 does not appear, there should be a problem with the configuration and the flannel will be local to that computer.
+
+Then, run an `ifconfig` to see the networks.
 
 ```
 core@coreos1 ~ $ ifconfig                                          

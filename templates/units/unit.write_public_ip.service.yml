@@ -1,0 +1,12 @@
+    - name: write_public_ip.service
+      command: start
+      content: |
+        [Unit]
+        Description=Systemd test
+        [Service]
+        Type=oneshot
+        ExecStartPre=/usr/bin/mkdir -p __PUBLIC_IP_FILE_PATH__
+        ExecStart=__PROGRAMS_PATH__/write_ip.sh __PUBLIC_IP_FILE_PATH__/public_ip
+        ExecStartPost=__PROGRAMS_PATH__/sed_kubernetes_public_ip.sh
+        [Install]
+        WantedBy=multi-user.target

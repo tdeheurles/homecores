@@ -15,7 +15,8 @@ network_mask="192.168.1"
 
 # If no cluster is provided, the VM will 
 #   start as a master
-etcd_cluster_ip="192.168.1.x"
+#   etcd_cluster_ip="" for starting a new cluster master
+etcd_cluster_ip=""
 
 # to simplify compatibility cygwin/windows
 current_project_folder="c:/Users/username/repository/homecores"

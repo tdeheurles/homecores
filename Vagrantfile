@@ -106,6 +106,7 @@ Vagrant.configure("2") do |config|
       vb.gui = vm_gui
       vb.memory = vm_memory
       vb.cpus = vm_cpus
+      vb.customize ["modifyvm", :id, "--vram", "24"]
     end
 
     # =============== NETWORK
@@ -139,32 +140,32 @@ Vagrant.configure("2") do |config|
 
     # =============== SHARED FOLDERS
     # =============================================
-    begin
-      MOUNT_POINTS.each do |mount|
-        mount_options = ""
-        disabled = false
-        nfs =  true
-        if mount['mount_options']
-          mount_options = mount['mount_options']
-        end
-        if mount['disabled']
-          disabled = mount['disabled']
-        end
-        if mount['nfs']
-          nfs = mount['nfs']
-        end
-        if File.exist?(File.expand_path("#{mount['source']}"))
-          if mount['destination']
-            config.vm.synced_folder "#{mount['source']}", "#{mount['destination']}",
-              id: "#{mount['name']}",
-              disabled: disabled,
-              mount_options: ["#{mount_options}"],
-              nfs: nfs
-          end
-        end
-      end
-    rescue
-    end
+    # begin
+    #   MOUNT_POINTS.each do |mount|
+    #     mount_options = ""
+    #     disabled = false
+    #     nfs =  true
+    #     if mount['mount_options']
+    #       mount_options = mount['mount_options']
+    #     end
+    #     if mount['disabled']
+    #       disabled = mount['disabled']
+    #     end
+    #     if mount['nfs']
+    #       nfs = mount['nfs']
+    #     end
+    #     if File.exist?(File.expand_path("#{mount['source']}"))
+    #       if mount['destination']
+    #         config.vm.synced_folder "#{mount['source']}", "#{mount['destination']}",
+    #           id: "#{mount['name']}",
+    #           disabled: disabled,
+    #           mount_options: ["#{mount_options}"],
+    #           nfs: nfs
+    #       end
+    #     end
+    #   end
+    # rescue
+    # end
 
     # =============== RCFILES
     # =============================================
@@ -190,6 +191,15 @@ Vagrant.configure("2") do |config|
     config.vm.provision :file, :source => "templates/.commonrc",      :destination => "/home/core/.commonrc"
 
 
+    # ================== KUBERNETES
+    # ==============================================
+    config.vm.provision :file, :source => "auto_generated/kubernetes.yaml", 
+                        :destination => "/tmp/kubernetes.yaml"
+    config.vm.provision :shell, keep_color: true,
+                        :inline => "mkdir -p /etc/kubernetes/manifests"
+    config.vm.provision :shell, keep_color: true,
+                        :inline => "mv /tmp/kubernetes.yaml /etc/kubernetes/manifests/kubernetes.yaml"
+
 
     # ================== CLOUD-CONFIG
     # ==============================================
@@ -197,14 +207,5 @@ Vagrant.configure("2") do |config|
     config.vm.provision :shell, :inline => "mv /tmp/vagrantfile-user-data /var/lib/coreos-vagrant/"
 
     
-    # ================== KUBERNETES
-    # ==============================================
-    config.vm.provision :file, :source => "templates/kubernetes.yaml", 
-                        :destination => "/tmp/kubernetes.yaml"
-
-    config.vm.provision :shell, keep_color: true,
-                        :inline => "mkdir -p /etc/kubernetes/manifests"
-    config.vm.provision :shell, keep_color: true,
-                        :inline => "mv /tmp/kubernetes.yaml /etc/kubernetes/manifests/kubernetes.yaml"
   end
 end

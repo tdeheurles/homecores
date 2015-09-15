@@ -7,16 +7,15 @@
         Require=flanneld.service
         After=flanneld.service
         [Service]
-        EnvironmentFile=__PUBLIC_IP_FILE_PATH__/public_ip
+        #EnvironmentFile=__PUBLIC_IP_FILE_PATH__/public_ip
         ExecStartPre=/usr/bin/mkdir -p /etc/kubernetes/manifests
-        ExecStart=/usr/bin/kubelet \
-            --api-servers=http://${PUBLIC_IP}:8080 \
-            --allow-privileged=true \
-            --config=/etc/kubernetes/manifests \
-            --v=2 \
-            --register-node=true
+        ExecStart=/usr/bin/kubelet              \
+            --api-servers=http://127.0.0.1:8080 \
+            --allow-privileged=true             \
+            --config=/etc/kubernetes/manifests  \
+            --v=2
+            #--register-node=true
         Restart=on-failure
         RestartSec=5
         [Install]
         WantedBy=multi-user.target
-

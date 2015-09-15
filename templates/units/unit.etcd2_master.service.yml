@@ -15,7 +15,8 @@
           -initial-cluster               __HOSTNAME__=http://${PUBLIC_IP}:2380          \
           -initial-cluster-state         new                                            \
           -advertise-client-urls         http://${PUBLIC_IP}:2379                       \
-          -data-dir                      /home/core/__HOSTNAME__.etcd2
+          -data-dir                      /home/__USERNAME__/__HOSTNAME__.etcd2
+        Restart=on-failure
+        RestartSec=5
         [Install]
         WantedBy=multi-user.target
-

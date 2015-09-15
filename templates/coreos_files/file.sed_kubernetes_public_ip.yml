@@ -1,0 +1,8 @@
+  # This script will insert the public_ip in the kubernetes manifest
+  - path:        __PROGRAMS_PATH__/sed_kubernetes_public_ip.sh
+    permissions: "0755"
+    owner:       "root"
+    content: |
+      #!/bin/bash -
+      . .__PUBLIC_IP_FILE_PATH__/public_ip
+      sed -i "s|__PUBLIC_IP__|$PUBLIC_IP|g" /etc/kubernetes/manifests/kubernetes.yaml

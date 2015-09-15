@@ -1,0 +1,9 @@
+  # This script will get the public ipv4 that correspond
+  #   to the network mask given in the config
+  - path:        __PROGRAMS_PATH__/write_ip.sh
+    permissions: "0755"
+    owner:       "root"
+    content: |
+      #!/bin/bash -
+      FILE_TO_WRITE=$1
+      echo "PUBLIC_IP=`ifconfig | grep __NETWORK_MASK__ | awk '{print $2}'`" > $FILE_TO_WRITE

@@ -216,7 +216,7 @@ alias sst="systemctl status"
 alias scat="systemctl cat"
 alias sstop="systemctl stop"
 alias sstart="systemctl start"
-
+alias slj="systemctl list-jobs"
 
 # ======================================= FLANNEL
 # ===============================================

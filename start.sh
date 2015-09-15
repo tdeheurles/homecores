@@ -16,6 +16,16 @@ if [[ ! -f id_rsa ]]; then
 fi
 chmod 600 id_rsa
 
+
+# controlling master or node
+. ./config.sh
+if [[ $etcd_cluster_ip == "" ]];then
+	echo "Will start as master"
+else
+	echo "Will start as node"
+fi
+
+
 echo "Prepare folders"
 mkdir -p auto_generated
 rm -rf auto_generated/*
@@ -29,8 +39,9 @@ vagrant destroy -f \
 && vagrant up \
 && echo "Vagrant is up"                             \
 && echo "Will proceed to some async download now :" \
+&& echo "  - flannel     |   7 Mb)"                 \
 && echo "  - kubectl     |  20 Mb)"                 \
-&& echo "  - kubernetes  |     Mb)"                 \
+&& echo "  - kubernetes  |  ?? Mb)"                 \
 && echo " "                                         \
 && echo "Automatically ssh you in your CoreOS VM"   \
 && ./ssh_coreos.sh
