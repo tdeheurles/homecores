@@ -193,6 +193,7 @@ Vagrant.configure("2") do |config|
 
     # ================== KUBERNETES
     # ==============================================
+    # kubernetes manifest
     config.vm.provision :file, :source => "auto_generated/kubernetes.yaml", 
                         :destination => "/tmp/kubernetes.yaml"
     config.vm.provision :shell, keep_color: true,
@@ -200,12 +201,29 @@ Vagrant.configure("2") do |config|
     config.vm.provision :shell, keep_color: true,
                         :inline => "mv /tmp/kubernetes.yaml /etc/kubernetes/manifests/kubernetes.yaml"
 
+    # certificates
+    config.vm.provision :shell, keep_color: true,
+                        :inline => "mkdir -p #{$KUBERNETES_SSL_PATH}"
+
+    config.vm.provision :file, :source => "#{$CA_PEM}", 
+                        :destination =>   "/tmp/#{$CA_PEM_NAME}"
+
+    config.vm.provision :file, :source => "#{$APISERVER_PEM}", 
+                        :destination =>   "/tmp/#{$APISERVER_PEM_NAME}"
+
+    config.vm.provision :file, :source => "#{$APISERVER_KEY_PEM}", 
+                        :destination =>   "/tmp/#{$APISERVER_KEY_PEM_NAME}"
+
+    config.vm.provision :shell, :privileged => true,
+        inline: <<-EOF
+        mv /tmp/#{$CA_PEM_NAME}            #{$KUBERNETES_SSL_PATH}
+        mv /tmp/#{$APISERVER_PEM_NAME}     #{$KUBERNETES_SSL_PATH}
+        mv /tmp/#{$APISERVER_KEY_PEM_NAME} #{$KUBERNETES_SSL_PATH}
+        EOF
 
     # ================== CLOUD-CONFIG
     # ==============================================
     config.vm.provision :file, :source => "auto_generated/cloud_config.yml", :destination => "/tmp/vagrantfile-user-data"
     config.vm.provision :shell, :inline => "mv /tmp/vagrantfile-user-data /var/lib/coreos-vagrant/"
-
-    
   end
 end
