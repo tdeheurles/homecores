@@ -31,6 +31,7 @@ fi
 inject $unit_folder/unit.flanneld.service.yml             $cloud_config_file "__FLANNEL__"
 inject $unit_folder/unit.kubectl.service.yml              $cloud_config_file "__KUBECTL__"
 inject $unit_folder/unit.kubelet.service.yml              $cloud_config_file "__KUBELET__"
+inject $unit_folder/unit.docker.service.yml               $cloud_config_file "__DOCKER__"
 
 
 echo "  Add files to cloud_config"
@@ -52,7 +53,7 @@ sed -i "s|__ETCD_ENDPOINTS__|$etcd_endpoints|g"                   $cloud_config_
 
 if [[ $master_hostname == "" ]]; then
 	sed -i "s|__MASTER_HOSTNAME__|$coreos_hostname|g"             $cloud_config_file
-	sed -i "s|__MASTER_IP__|#{PUBLIC_IP}|g"                       $cloud_config_file
+	sed -i 's|__MASTER_IP__|${PUBLIC_IP}|g'                       $cloud_config_file
 else
 	sed -i "s|__MASTER_HOSTNAME__|$master_hostname|g"             $cloud_config_file
  	sed -i "s|__MASTER_IP__|$etcd_cluster_ip|g"                   $cloud_config_file

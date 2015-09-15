@@ -15,6 +15,7 @@ coreos:
 __WRITE_PUBLIC_IP__
 __ETCD2__
 __FLANNEL__
+__DOCKER__
 __KUBECTL__
 __KUBELET__
 
