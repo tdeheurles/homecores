@@ -8,4 +8,6 @@
     content: |
       #!/bin/bash -
       PUBLIC_IP=$1
+      ETCD_ENDPOINTS=$2
       echo "FLANNELD_IFACE=$PUBLIC_IP" > /run/flannel/options.env
+      echo "FLANNELD_ETCD_ENDPOINTS=$ETCD_ENDPOINTS" >> /run/flannel/options.env

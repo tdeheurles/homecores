@@ -6,7 +6,7 @@
         Requires=write_public_ip.service
         After=write_public_ip.service
         [Service]
-        EnvironmentFile=__PUBLIC_IP_FILE_PATH__/public_ip
+        EnvironmentFile=__MAIN_CONFIGURATION_PATH__/public_ip
         ExecStart=/usr/bin/etcd2                                                        \
           -name                          __HOSTNAME__                                   \
           -listen-peer-urls              http://${PUBLIC_IP}:2380                       \

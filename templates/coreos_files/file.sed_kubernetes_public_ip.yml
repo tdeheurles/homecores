@@ -4,5 +4,5 @@
     owner:       "root"
     content: |
       #!/bin/bash -
-      . .__PUBLIC_IP_FILE_PATH__/public_ip
+      . .__MAIN_CONFIGURATION_PATH__/public_ip
       sed -i "s|__PUBLIC_IP__|$PUBLIC_IP|g" /etc/kubernetes/manifests/kubernetes.yaml
