@@ -4,7 +4,7 @@
 if [[ ! -f config.sh ]]; then
 	echo "you need to prepare the config.sh file first"
 	echo "open config.sh"
-	cp templates/templates.config.sh config.sh
+	cp templates/template.config.sh config.sh
 	exit 1
 fi
 

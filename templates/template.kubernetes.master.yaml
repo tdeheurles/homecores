@@ -30,7 +30,7 @@ spec:
       image: "b.gcr.io/kuar/kube-apiserver:__K8S_VERSION__"
       args:
         - "--allow-privileged=true"
-        - "--etcd-servers=http://127.0.0.1:2379"
+        - "--etcd-servers=http://__PUBLIC_IP__:2379"
         - "--insecure-bind-address=0.0.0.0"
         - "--service-cluster-ip-range=10.200.20.0/24"
         - "--v=2"
@@ -40,9 +40,9 @@ spec:
         # - "--admission_control=NamespaceLifecycle,NamespaceExists,LimitRanger,SecurityContextDeny,ServiceAccount,ResourceQuota
         # - "--service_account_key_file=/srv/kubernetes/server.key 
         # - "--kubelet_https=true 
-        #- "--secure_port=6443 
-        #- "--bind-address=__PUBLIC_IP__
-        #- "--cloud_provider=vagrant"
+        # - "--secure_port=6443 
+        # - "--bind-address=__PUBLIC_IP__
+        # - "--cloud_provider=vagrant"
         # - "--logtostderr=true 
         # - "--runtime_config=api/v1
       volumeMounts:
