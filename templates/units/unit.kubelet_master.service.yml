@@ -1,0 +1,24 @@
+    - name: kubelet.service
+      command: start
+      content: |
+        [Unit]
+        Description=Kubernetes Kubelet for Master
+        Documentation=https://github.com/kubernetes/kubernetes
+        Requires=flanneld.service
+        After=flanneld.service
+        [Service]
+        EnvironmentFile=__MAIN_CONFIGURATION_PATH__/public_ip
+        ExecStartPre=/usr/bin/mkdir -p /etc/kubernetes/manifests
+        ExecStart=/usr/bin/kubelet              \
+            --api-servers=http://127.0.0.1:8080 \
+            --register-node=true               \
+            --allow-privileged=true             \
+            --config=/etc/kubernetes/manifests  \
+            --hostname-override=${PUBLIC_IP}    \
+            --cluster_dns=__DNS_SERVICE_IP__    \
+            --cluster_domain=cluster.local      \
+            --cadvisor-port=0
+        Restart=always
+        RestartSec=10
+        [Install]
+        WantedBy=multi-user.target

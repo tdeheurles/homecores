@@ -1,84 +1,46 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: kube-controller
+  name: kube-apiserver
+  namespace: kube-system
+
 spec:
   hostNetwork: true
-  volumes:
-    - name: "etc-kubernetes"
-      hostPath:
-        path: "/etc/kubernetes"
-    - name: "ssl-certs"
-      hostPath:
-        path: "/usr/share/ca-certificates"
-    - name: "var-run-kubernetes"
-      hostPath:
-        path: "/var/run/kubernetes"
-    - name: "etcd-datadir"
-      hostPath:
-        path: "/var/lib/etcd"
-    - name: "usr"
-      hostPath:
-        path: "/usr"
-    - name: "lib64"
-      hostPath:
-        path: "/lib64"
-
   containers:
-    # KUBE-API-SERVER
     - name: "kube-apiserver"
-      image: "b.gcr.io/kuar/kube-apiserver:__K8S_VERSION__"
-      args:
-        - "--allow-privileged=true"
-        - "--etcd-servers=http://__PUBLIC_IP__:2379"
-        - "--insecure-bind-address=0.0.0.0"
-        - "--service-cluster-ip-range=10.200.20.0/24"
-        - "--v=2"
-        # - "--client-ca-file=/srv/kubernetes/ca.crt
-        # - "--tls-cert-file=/srv/kubernetes/server.cert
-        # - "--tls-private-key-file=/srv/kubernetes/server.key
-        # - "--admission_control=NamespaceLifecycle,NamespaceExists,LimitRanger,SecurityContextDeny,ServiceAccount,ResourceQuota
-        # - "--service_account_key_file=/srv/kubernetes/server.key 
-        # - "--kubelet_https=true 
-        # - "--secure_port=6443 
-        # - "--bind-address=__PUBLIC_IP__
-        # - "--cloud_provider=vagrant"
-        # - "--logtostderr=true 
-        # - "--runtime_config=api/v1
+
+      image: gcr.io/google_containers/hyperkube:__K8S_VERSION__
+
+      command:
+        - /hyperkube
+        - apiserver
+        - --bind-address=0.0.0.0
+        - --etcd-servers=__ETCD_ENDPOINTS__
+        - --allow-privileged=true
+        - --service-cluster-ip-range=__SERVICE_IP_RANGE__
+        - --secure_port=443
+        - --advertise-address=__PUBLIC_IP__
+        - --admission-control=NamespaceLifecycle,NamespaceExists,LimitRanger,SecurityContextDeny,ServiceAccount,ResourceQuota
+        - --tls-cert-file=__APISERVER_PEM__
+        - --tls-private-key-file=__APISERVER_KEY_PEM__
+        - --client-ca-file=__CA_PEM__
+        - --service-account-key-file=__APISERVER_KEY_PEM__
+
+      ports:
+      - containerPort: 443
+        hostPort: 443
+        name: https
+      - containerPort: 7080
+        hostPort: 7080
+        name: http
+      - containerPort: 8080
+        hostPort: 8080
+        name: local
+
       volumeMounts:
-        - mountPath: /etc/kubernetes
-          name: "etc-kubernetes"
-        - mountPath: /var/run/kubernetes
-          name: "var-run-kubernetes"
-
-    # KUBE-CONTROLLER
-    - name: "kube-controller-manager"
-      image: "b.gcr.io/kuar/kube-controller-manager:__K8S_VERSION__"
-      args:
-        - "--master=http://127.0.0.1:8080"
-        - "--v=2"
-
-    # KUBE-SCHEDULER
-    - name: "kube-scheduler"
-      image: "b.gcr.io/kuar/kube-scheduler:__K8S_VERSION__"
-      args:
-        - "--master=http://127.0.0.1:8080"
-        - "--v=2"
-
-    # KUBE_PROXY
-    - name: "kube-proxy"
-      image: "b.gcr.io/kuar/kube-proxy:__K8S_VERSION__"
-      args:
-        - "--master=http://127.0.0.1:8080"
-        - "--v=2"
-      securityContext:
-        privileged: true
-      volumeMounts:
-        - mountPath: /etc/kubernetes
-          name: "etc-kubernetes"
-        - mountPath: /etc/ssl/certs
-          name: "ssl-certs"
-        - mountPath: /usr
-          name: "usr"
-        - mountPath: /lib64
-          name: "lib64"
+      - mountPath: /etc/kubernetes/ssl
+        name: ssl-certs-kubernetes
+        readOnly: true
+      - mountPath: /etc/ssl/certs
+        name: ssl-certs-host
+        readOnly: true

@@ -8,7 +8,7 @@
             After=write_public_ip.service
             [Service]
             EnvironmentFile=__MAIN_CONFIGURATION_PATH__/public_ip
-            ExecStartPre=__PROGRAMS_PATH__/write_flannel_public_ip.sh ${PUBLIC_IP} http://__MASTER_IP__:2379
+            ExecStartPre=__PROGRAMS_PATH__/write_flannel_public_ip.sh ${PUBLIC_IP} __ETCD_CLIENT_ENDPOINTS__
             ExecStartPre=/usr/bin/etcdctl  \
               set                          \
                 /coreos.com/network/config \

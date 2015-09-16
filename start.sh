@@ -34,14 +34,14 @@ echo "Prepare config for different services"
 ./bootstrap_scripts/prepare_config_files.sh
 
 echo "Launch Vagrant"
-vagrant global-status --prune
+#vagrant global-status --prune
 vagrant destroy -f \
 && vagrant up \
 && echo "Vagrant is up"                             \
 && echo "Will proceed to some async download now :" \
 && echo "  - flannel     |   7 Mb)"                 \
 && echo "  - kubectl     |  20 Mb)"                 \
-&& echo "  - kubernetes  |  ?? Mb)"                 \
+&& echo "  - kubernetes  | 220 Mb)"                 \
 && echo " "                                         \
 && echo "Automatically ssh you in your CoreOS VM"   \
 && ./ssh_coreos.sh

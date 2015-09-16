@@ -1,5 +1,6 @@
 # Bare-Metal
 config.sh
+run.sh
 
 .vagrant/
 log/

@@ -1,0 +1,38 @@
+    - name: kubectl_dl.service
+      command: start
+      content: |
+        [Unit]
+        Description=Download kubectl
+        
+        [Service]
+        Type=oneshot
+        
+        ExecStartPre=/usr/bin/mkdir -p __PROGRAMS_PATH__
+        
+        # download
+        ExecStart=/usr/bin/wget      \
+            __KUBECTL_DOWNLOAD_URL__ \
+            -O __PROGRAMS_PATH__/kubectl
+        
+        # config
+        ExecStartPost=/usr/bin/chmod 755 __PROGRAMS_PATH__/kubectl
+        
+        ExecStartPost=__PROGRAMS_PATH__/kubectl \
+          config set-cluster vagrant            \
+          --server=https://__MASTER_IP__:443    \
+          --certificate-authority=__KUBERNETES_SSL_PATH__/__CA_PEM_NAME__
+        
+        ExecStartPost=__PROGRAMS_PATH__/kubectl config set-credentials vagrant-admin \
+          --certificate-authority=__KUBERNETES_SSL_PATH__/__CA_PEM_NAME__            \
+          --client-key=__KUBERNETES_SSL_PATH__/__ADMIN_KEY_PEM_NAME__                \
+          --client-certificate=__KUBERNETES_SSL_PATH__/__ADMIN_PEM_NAME__
+        
+        ExecStartPost=__PROGRAMS_PATH__/kubectl config \
+          set-context vagrant                          \
+          --cluster=vagrant                            \
+          --user=vagrant-admin
+        
+        ExecStartPost=__PROGRAMS_PATH__/kubectl config use-context vagrant
+        
+        [Install]
+        WantedBy=multi-user.target

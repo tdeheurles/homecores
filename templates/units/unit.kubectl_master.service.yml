@@ -1,0 +1,14 @@
+    - name: kubectl_dl.service
+      command: start
+      content: |
+        [Unit]
+        Description=Download kubectl
+        [Service]
+        Type=oneshot
+        ExecStartPre=/usr/bin/mkdir -p __PROGRAMS_PATH__
+        ExecStart=/usr/bin/wget      \
+            __KUBECTL_DOWNLOAD_URL__ \
+            -O __PROGRAMS_PATH__/kubectl
+        ExecStartPost=/usr/bin/chmod 755 __PROGRAMS_PATH__/kubectl
+        [Install]
+        WantedBy=multi-user.target
