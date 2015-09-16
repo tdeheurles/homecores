@@ -2,20 +2,23 @@
       command: start
       content: |
         [Unit]
-        Description=Kubernetes Kubelet
+        Description=Kubernetes Kubelet for Master
         Documentation=https://github.com/kubernetes/kubernetes
-        Require=flanneld.service
+        Requires=flanneld.service
         After=flanneld.service
         [Service]
-        #EnvironmentFile=__MAIN_CONFIGURATION_PATH__/public_ip
+        EnvironmentFile=__MAIN_CONFIGURATION_PATH__/public_ip
         ExecStartPre=/usr/bin/mkdir -p /etc/kubernetes/manifests
         ExecStart=/usr/bin/kubelet              \
             --api-servers=http://127.0.0.1:8080 \
+            --register-node=true               \
             --allow-privileged=true             \
             --config=/etc/kubernetes/manifests  \
-            --v=2
-            #--register-node=true
-        Restart=on-failure
-        RestartSec=5
+            --hostname-override=${PUBLIC_IP}    \
+            --cluster_dns=__DNS_SERVICE_IP__    \
+            --cluster_domain=cluster.local      \
+            --cadvisor-port=0
+        Restart=always
+        RestartSec=10
         [Install]
         WantedBy=multi-user.target

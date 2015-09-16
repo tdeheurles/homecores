@@ -106,6 +106,7 @@ Vagrant.configure("2") do |config|
       vb.gui = vm_gui
       vb.memory = vm_memory
       vb.cpus = vm_cpus
+      vb.customize ["modifyvm", :id, "--vram", "24"]
     end
 
     # =============== NETWORK
@@ -126,45 +127,45 @@ Vagrant.configure("2") do |config|
       config.vm.network "forwarded_port", guest: guest, host: host, auto_correct: true
     end
 
-    # private network :
-    #   - needed by nfs
-    #   - request admin privilege window
-    ip_private = "172.16.1.100"
-    config.vm.network :private_network, ip: ip_private
-    
     # public network
     #   - network used bt the cluster 
     config.vm.network :public_network,
                       bridge: "#{$public_network_to_use}"
 
+    # private network :
+    #   - needed by nfs
+    #   - request admin privilege window
+    ip_private = "172.16.1.100"
+    config.vm.network :private_network, ip: ip_private
+
     # =============== SHARED FOLDERS
     # =============================================
-    begin
-      MOUNT_POINTS.each do |mount|
-        mount_options = ""
-        disabled = false
-        nfs =  true
-        if mount['mount_options']
-          mount_options = mount['mount_options']
-        end
-        if mount['disabled']
-          disabled = mount['disabled']
-        end
-        if mount['nfs']
-          nfs = mount['nfs']
-        end
-        if File.exist?(File.expand_path("#{mount['source']}"))
-          if mount['destination']
-            config.vm.synced_folder "#{mount['source']}", "#{mount['destination']}",
-              id: "#{mount['name']}",
-              disabled: disabled,
-              mount_options: ["#{mount_options}"],
-              nfs: nfs
-          end
-        end
-      end
-    rescue
-    end
+    # begin
+    #   MOUNT_POINTS.each do |mount|
+    #     mount_options = ""
+    #     disabled = false
+    #     nfs =  true
+    #     if mount['mount_options']
+    #       mount_options = mount['mount_options']
+    #     end
+    #     if mount['disabled']
+    #       disabled = mount['disabled']
+    #     end
+    #     if mount['nfs']
+    #       nfs = mount['nfs']
+    #     end
+    #     if File.exist?(File.expand_path("#{mount['source']}"))
+    #       if mount['destination']
+    #         config.vm.synced_folder "#{mount['source']}", "#{mount['destination']}",
+    #           id: "#{mount['name']}",
+    #           disabled: disabled,
+    #           mount_options: ["#{mount_options}"],
+    #           nfs: nfs
+    #       end
+    #     end
+    #   end
+    # rescue
+    # end
 
     # =============== RCFILES
     # =============================================
@@ -190,21 +191,102 @@ Vagrant.configure("2") do |config|
     config.vm.provision :file, :source => "templates/.commonrc",      :destination => "/home/core/.commonrc"
 
 
+    # ================== KUBERNETES
+    # ==============================================
+    
+    # kubernetes manifests
+    # ====================
+    config.vm.provision :shell, keep_color: true,
+                        :inline => "mkdir -p /etc/kubernetes/manifests"
+
+    if $is_master == true
+      # --apiserver
+      config.vm.provision :file, :source => "auto_generated/kubernetes/kube-apiserver.yml", 
+                          :destination => "/tmp/kube-apiserver.yml"
+
+      config.vm.provision :shell, keep_color: true,
+                          :inline => "mv /tmp/kube-apiserver.yml /etc/kubernetes/manifests/kube-apiserver.yml"
+
+      # --controller
+      config.vm.provision :file, :source => "auto_generated/kubernetes/kube-controller.yml", 
+                          :destination => "/tmp/kube-controller.yml"
+
+      config.vm.provision :shell, keep_color: true,
+                          :inline => "mv /tmp/kube-controller.yml /etc/kubernetes/manifests/kube-controller.yml"
+
+      # --scheduler    
+      config.vm.provision :file, :source => "auto_generated/kubernetes/kube-scheduler.yml", 
+                          :destination => "/tmp/kube-scheduler.yml"
+
+      config.vm.provision :shell, keep_color: true,
+                          :inline => "mv /tmp/kube-scheduler.yml /etc/kubernetes/manifests/kube-scheduler.yml"
+    else
+      # --node_kubeconfig
+      config.vm.provision :file, :source => "auto_generated/kubernetes/node_kubeconfig.yml", 
+                          :destination => "/tmp/node_kubeconfig.yml"
+
+      config.vm.provision :shell, keep_color: true,
+                          :inline => "mv /tmp/node_kubeconfig.yml /etc/kubernetes/node_kubeconfig.yml"
+    end
+    
+    # --proxy
+    config.vm.provision :file, :source => "auto_generated/kubernetes/kube-proxy.yml", 
+                        :destination => "/tmp/kube-proxy.yml"
+
+    config.vm.provision :shell, keep_color: true,
+                        :inline => "mv /tmp/kube-proxy.yml /etc/kubernetes/manifests/kube-proxy.yml"
+
+
+    # certificates
+    # ============
+    config.vm.provision :shell, keep_color: true,
+                        :inline => "mkdir -p #{$KUBERNETES_SSL_PATH}"
+
+    config.vm.provision :file, :source => "#{$CA_PEM}", 
+                        :destination =>   "/tmp/#{$CA_PEM_NAME}"
+
+    if $is_master == true
+      # MASTER
+      config.vm.provision :file, :source => "#{$APISERVER_PEM}", 
+                          :destination =>   "/tmp/#{$APISERVER_PEM_NAME}"
+
+      config.vm.provision :file, :source => "#{$APISERVER_KEY_PEM}", 
+                          :destination =>   "/tmp/#{$APISERVER_KEY_PEM_NAME}"
+
+      config.vm.provision :shell, :privileged => true,
+          inline: <<-EOF
+          mv /tmp/#{$CA_PEM_NAME}            #{$KUBERNETES_SSL_PATH}
+          mv /tmp/#{$APISERVER_PEM_NAME}     #{$KUBERNETES_SSL_PATH}
+          mv /tmp/#{$APISERVER_KEY_PEM_NAME} #{$KUBERNETES_SSL_PATH}
+          EOF
+    else
+      # NODE
+      config.vm.provision :file, :source => "#{$WORKER_PEM}", 
+                          :destination =>   "/tmp/#{$WORKER_PEM_NAME}"
+
+      config.vm.provision :file, :source => "#{$WORKER_KEY_PEM}", 
+                          :destination =>   "/tmp/#{$WORKER_KEY_PEM_NAME}"
+
+      config.vm.provision :file, :source => "#{$ADMIN_PEM}", 
+                          :destination =>   "/tmp/#{$ADMIN_PEM_NAME}"
+
+      config.vm.provision :file, :source => "#{$ADMIN_KEY_PEM}", 
+                          :destination =>   "/tmp/#{$ADMIN_KEY_PEM_NAME}"
+
+      config.vm.provision :shell, :privileged => true,
+          inline: <<-EOF
+          mv /tmp/#{$CA_PEM_NAME}         #{$KUBERNETES_SSL_PATH}
+          mv /tmp/#{$WORKER_PEM_NAME}     #{$KUBERNETES_SSL_PATH}
+          mv /tmp/#{$WORKER_KEY_PEM_NAME} #{$KUBERNETES_SSL_PATH}
+          mv /tmp/#{$ADMIN_PEM_NAME}      #{$KUBERNETES_SSL_PATH}
+          mv /tmp/#{$ADMIN_KEY_PEM_NAME}  #{$KUBERNETES_SSL_PATH}
+          EOF
+    end
+
 
     # ================== CLOUD-CONFIG
     # ==============================================
     config.vm.provision :file, :source => "auto_generated/cloud_config.yml", :destination => "/tmp/vagrantfile-user-data"
     config.vm.provision :shell, :inline => "mv /tmp/vagrantfile-user-data /var/lib/coreos-vagrant/"
-
-    
-    # ================== KUBERNETES
-    # ==============================================
-    config.vm.provision :file, :source => "templates/kubernetes.yaml", 
-                        :destination => "/tmp/kubernetes.yaml"
-
-    config.vm.provision :shell, keep_color: true,
-                        :inline => "mkdir -p /etc/kubernetes/manifests"
-    config.vm.provision :shell, keep_color: true,
-                        :inline => "mv /tmp/kubernetes.yaml /etc/kubernetes/manifests/kubernetes.yaml"
   end
 end

@@ -7,10 +7,9 @@
             Requires=write_public_ip.service
             After=write_public_ip.service
             [Service]
-            EnvironmentFile=__PUBLIC_IP_FILE_PATH__/public_ip
-            Environment=FLANNEL_INTERFACE=${PUBLIC_IP}
+            EnvironmentFile=__MAIN_CONFIGURATION_PATH__/public_ip
+            ExecStartPre=__PROGRAMS_PATH__/write_flannel_public_ip.sh ${PUBLIC_IP} __ETCD_CLIENT_ENDPOINTS__
             ExecStartPre=/usr/bin/etcdctl  \
               set                          \
                 /coreos.com/network/config \
                '{ "Network": "__FLANNEL_NETWORK__" }'
-

@@ -1,5 +1,6 @@
 # Bare-Metal
 config.sh
+run.sh
 
 .vagrant/
 log/
@@ -7,3 +8,5 @@ log/
 tmp
 auto_generated/
 id_rsa
+
+certificates

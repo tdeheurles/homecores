@@ -87,17 +87,20 @@ function kst {
     namespace="--namespace=$1"
   fi
 
-    echo -e "\e[92mSERVICES\e[39m"          \
-    && kubectl get services $namespace         \
-    && echo " "                                \
-    && echo -e "\e[92mRC\e[39m"                \
-    && kubectl get rc $namespace               \
-    && echo " "                                \
-    && echo -e "\e[92mPODS\e[39m"              \
-    && kubectl get pods $namespace             \
-    && echo " "                                \
-    && echo -e "\e[92mENDPOINTS\e[39m"         \
-    && kubectl get endpoints $namespace        \
+    echo -e "\e[92mSERVICES\e[39m"         \
+    && kubectl get services $namespace     \
+    && echo " "                            \
+    && echo -e "\e[92mRC\e[39m"            \
+    && kubectl get rc $namespace           \
+    && echo " "                            \
+    && echo -e "\e[92mPODS\e[39m"          \
+    && kubectl get pods $namespace         \
+    && echo " "                            \
+    && echo -e "\e[92mENDPOINTS\e[39m"     \
+    && kubectl get endpoints $namespace    \
+    && echo " "                            \
+    && echo -e "\e[92mNODES\e[39m"         \
+    && kubectl get nodes $namespace        \
     && echo " "
 }
 
@@ -216,7 +219,7 @@ alias sst="systemctl status"
 alias scat="systemctl cat"
 alias sstop="systemctl stop"
 alias sstart="systemctl start"
-
+alias slj="systemctl list-jobs"
 
 # ======================================= FLANNEL
 # ===============================================

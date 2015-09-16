@@ -6,7 +6,7 @@
         Requires=write_public_ip.service
         After=write_public_ip.service
         [Service]
-        EnvironmentFile=__PUBLIC_IP_FILE_PATH__/public_ip
+        EnvironmentFile=__MAIN_CONFIGURATION_PATH__/public_ip
         ExecStart=/usr/bin/etcd2                                                        \
           -name                          __HOSTNAME__                                   \
           -listen-peer-urls              http://${PUBLIC_IP}:2380                       \
@@ -15,7 +15,8 @@
           -initial-cluster               __HOSTNAME__=http://${PUBLIC_IP}:2380          \
           -initial-cluster-state         new                                            \
           -advertise-client-urls         http://${PUBLIC_IP}:2379                       \
-          -data-dir                      /home/core/__HOSTNAME__.etcd2
+          -data-dir                      /home/__USERNAME__/__HOSTNAME__.etcd2
+        Restart=on-failure
+        RestartSec=5
         [Install]
         WantedBy=multi-user.target
-

@@ -3,8 +3,7 @@
 hostname: __HOSTNAME__
 
 users:
-  - name: core
-    #passwd: __PASSWORD__
+  - name: __USERNAME__
     ssh_authorized_keys:
       - ssh-rsa __ID_RSA__
     groups:
@@ -12,31 +11,15 @@ users:
       - docker
 
 coreos:
-__ETCD2__
   units:
-__UNITS__
-    - name: write_public_ip.service
-      command: start
-      content: |
-        [Unit]
-        Description=Systemd test
-
-        [Service]
-        Type=oneshot
-        ExecStartPre=/usr/bin/mkdir -p __PUBLIC_IP_FILE_PATH__
-        ExecStart=/home/core/programs/write_ip.sh __PUBLIC_IP_FILE_PATH__/public_ip
-
-        [Install]
-        WantedBy=multi-user.target
+__WRITE_PUBLIC_IP__
+__ETCD2__
+__FLANNEL__
+__DOCKER__
+__KUBECTL__
+__KUBELET__
 
 write_files:
-  # This script will get the public ipv4 that correspond
-  #   to the network mask given in the config
-  - path:        /home/core/programs/write_ip.sh
-    permissions: "0755"
-    owner:       "root"
-    content: |
-      #!/bin/bash -
-      FILE_TO_WRITE=$1
-      echo "PUBLIC_IP=`ifconfig | grep __NETWORK_MASK__ | awk '{print $2}'`" > $FILE_TO_WRITE
-
+__FILE_WRITE_IP__
+__FILE_WRITE_FLANNEL_PUBLIC_IP__
+__FILE_SED_KUBERNETES_PUBLIC_IP__
