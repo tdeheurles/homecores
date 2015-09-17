@@ -53,7 +53,7 @@ Windows user informations :
   - `ConEMU`: can be used for a better interaction than the win7 cmd.exe, but there is still issues with it (like the `less` command doesn't appearing correctly)
   - `Cygwin`: it seems to not have problem excepted it's long installation. You can follow the cygwin part of [that guide](http://tdeheurles.github.io/How-to-install-docker-on-windows/#install-cygwin)
 
-## Starting the project
+## Preparing the project
 
 ### Configuration, Step by Step
 
@@ -87,19 +87,19 @@ public_network_to_use="Qualcomm Atheros AR8151 PCI-E Gigabit Ethernet Controller
 [...]
 ```
 
-- You can let `master1` as the coreos_name, it just needs to be unique.
+- You can let `coreos_hostname=master1`, it just needs to be unique.
 - Enter the mask of your local network. Not your computer IP but the mask.
-- the third information is a bit more difficult to found. It's a vagrant configuration that can be found with a virtualbox tool :
+- The third information is a bit more difficult to found. It's a vagrant configuration that can be found with a virtualbox tool :
   - run a new CLI (GitBash or another)
   - go to the virtualbox installation
     - for windows it's `cd "C:\Program Files\Oracle\VirtualBox"`
   - run `vboxmanage list bridgedifs`
   - the information needed is the one corresponding to `Name:`
-  - So as in the example below, I will take `Qualcomm Atheros AR8151 PCI-E Gigabit Ethernet Controller (NDIS 6.20)`:
+  - So as an example :
 
 ```bash
-➜  ~  cd "C:\Program Files\Oracle\VirtualBox"
-➜  VirtualBox  vboxmanage list bridgedifs
+➜  cd "C:\Program Files\Oracle\VirtualBox"
+➜  vboxmanage list bridgedifs
 Name:            Qualcomm Atheros AR8151 PCI-E Gigabit Ethernet Controller (NDIS 6.20)
 GUID:            f99dc65b-6c35-4790-bc6b-3d36d2638c8b
 DHCP:            Enabled
@@ -115,7 +115,7 @@ VBoxNetworkName: HostInterfaceNetworking-Qualcomm Atheros AR8151 PCI-E Gigabit E
 
 Here, I will write `public_network_to_use="Qualcomm Atheros AR8151 PCI-E Gigabit Ethernet Controller (NDIS 6.20)"` in my config.sh file
 
-### run
+## Running the project
 Now we can run the project.  
 Go to your first terminal and run `./start.sh`.
 
@@ -124,7 +124,7 @@ Some download will occure. And the project will finally give the CoreOS prompt.
 Here is an example of the `./start.sh` script :
 
 ```bash
-➜  homecores git:(master) ✗ ./start.sh
+➜  ./start.sh
 Control ssh key
 Will start as master
 Prepare folders
@@ -148,6 +148,9 @@ Prepare config for different services
     controller-manager
     scheduler
     proxy
+Configuration is finished
+
+
 Launch Vagrant
 ==> master1: VM not created. Moving on...
 Bringing machine 'master1' up with 'virtualbox' provider...
@@ -203,8 +206,64 @@ core@master1 ~ $
 
 ### How to test that everything is started correctly
 If the script run successfully, you have been `ssh` to `CoreOS`.  
+Downloads will now be running (~250Mb)
 
-##### launching
+#### Short Way :
+
+- run `slj` and wait that the jobs are finished
+
+```bash
+core@master1 ~ $ slj
+No jobs running.
+```
+
+- then run `dps` and wait that 8 containers appear :
+
+```bash
+core@master1 ~ $ dps
+CONTAINER ID        IMAGE                                       COMMAND                  CREATED             STATUS              PORTS               NAMES
+259d16ba012e        gcr.io/google_containers/hyperkube:v1.0.6   "/hyperkube apiserver"   5 minutes ago       Up 5 minutes                            k8s_kube-apiserver.7bff4b40_kube-apiserver-192.168.1.83_default_7c4bf9aa9cfff4a366b0d917afef89de_95633f59
+34e88c61ef41        gcr.io/google_containers/hyperkube:v1.0.6   "/hyperkube scheduler"   5 minutes ago       Up 5 minutes                            k8s_kube-scheduler.96058e0_kube-scheduler-192.168.1.83_default_1ad6d2fbf3f144bb17dc21ee398dd6e1_b4b085f8
+ae1d4d3158d2        gcr.io/google_containers/hyperkube:v1.0.6   "/hyperkube proxy --m"   5 minutes ago       Up 5 minutes                            k8s_kube-proxy.db703083_kube-proxy-192.168.1.83_default_8770f171ca1f4f9d4aaf724284527622_badbb059
+cd672b7d81fb        gcr.io/google_containers/hyperkube:v1.0.6   "/hyperkube controlle"   5 minutes ago       Up 5 minutes                            k8s_kube-controller-manager.b9acaee_kube-controller-manager-192.168.1.83_default_96779ee4ab5a79bb2f082a7e48fa30be_bd00fa84
+5aea94e92c32        gcr.io/google_containers/pause:0.8.0        "/pause"                 7 minutes ago       Up 7 minutes                            k8s_POD.e4cc795_kube-proxy-192.168.1.83_default_8770f171ca1f4f9d4aaf724284527622_ecba1f9b
+707eb50ffa21        gcr.io/google_containers/pause:0.8.0        "/pause"                 7 minutes ago       Up 7 minutes                            k8s_POD.e4cc795_kube-scheduler-192.168.1.83_default_1ad6d2fbf3f144bb17dc21ee398dd6e1_028b4c97
+ea54b11143fa        gcr.io/google_containers/pause:0.8.0        "/pause"                 7 minutes ago       Up 7 minutes                            k8s_POD.e4cc795_kube-controller-manager-192.168.1.83_default_96779ee4ab5a79bb2f082a7e48fa30be_6f97c15e
+b6e5a8db5d9b        gcr.io/google_containers/pause:0.8.0        "/pause"                 7 minutes ago       Up 7 minutes                            k8s_POD.e4cc795_kube-apiserver-192.168.1.83_default_7c4bf9aa9cfff4a366b0d917afef89de_ad4194e4
+```
+
+- run `kst` and look for this to appear :
+
+```bash
+core@master1 ~ $ kst
+SERVICES
+NAME         LABELS                                    SELECTOR   IP(S)      PORT(S)
+kubernetes   component=apiserver,provider=kubernetes   <none>     10.3.0.1   443/TCP
+
+RC
+CONTROLLER   CONTAINER(S)   IMAGE(S)   SELECTOR   REPLICAS
+
+PODS
+NAME                                   READY     STATUS    RESTARTS   AGE
+kube-apiserver-192.168.1.83            1/1       Running   0          1m
+kube-controller-manager-192.168.1.83   1/1       Running   0          1m
+kube-proxy-192.168.1.83                1/1       Running   0          1m
+kube-scheduler-192.168.1.83            1/1       Running   0          1m
+
+ENDPOINTS
+NAME         ENDPOINTS
+kubernetes   192.168.1.83:443
+
+NODES
+NAME           LABELS                                STATUS
+192.168.1.83   kubernetes.io/hostname=192.168.1.83   Ready
+```
+
+If you have something like that, it's good.
+
+#### detail way
+
+##### systemd
 When you have ssh in, you will have to wait for some download and process to be done.  
 You can monitor these process by using the `slj` alias for `systemctl list-jobs` :  
 
@@ -216,7 +275,7 @@ core@master1 ~ $ slj
 1315 user-cloudinit@var...   start   running
 ```
 
-flanneld and kubelet need need to be downloaded. The last is the cloud-config that contains flanneld et kubelet jobs. We also can see that kubelet state is `waiting`. It waits flanneld to be started.
+flanneld and kubelet need to be downloaded. The last is the cloud-config that contains flanneld et kubelet jobs. We can also see that kubelet state is `waiting`. It waits flanneld to be started.
 
 You can also use `sst` (alias for `systemctl status`).
 
@@ -316,21 +375,28 @@ Just run `kubectl`, if the help appear. It's fine
 
 - kst (alias that will prompt some kubernetes informations) :
 ```bash
-username@hostname ~ $ kst
+core@master1 ~ $ kst
 SERVICES
-NAME         LABELS                                    SELECTOR   IP(S)         PORT(S)
-kubernetes   component=apiserver,provider=kubernetes   <none>     10.200.20.1   443/TCP
+NAME         LABELS                                    SELECTOR   IP(S)      PORT(S)
+kubernetes   component=apiserver,provider=kubernetes   <none>     10.3.0.1   443/TCP
 
 RC
 CONTROLLER   CONTAINER(S)   IMAGE(S)   SELECTOR   REPLICAS
 
 PODS
-NAME                      READY     STATUS    RESTARTS   AGE
-kube-controller-coreos1   4/4       Running   0          7m
+NAME                                   READY     STATUS    RESTARTS   AGE
+kube-apiserver-192.168.1.83            1/1       Running   0          1m
+kube-controller-manager-192.168.1.83   1/1       Running   0          1m
+kube-proxy-192.168.1.83                1/1       Running   0          1m
+kube-scheduler-192.168.1.83            1/1       Running   0          1m
 
 ENDPOINTS
 NAME         ENDPOINTS
-kubernetes   10.0.2.15:6443
+kubernetes   192.168.1.83:443
+
+NODES
+NAME           LABELS                                STATUS
+192.168.1.83   kubernetes.io/hostname=192.168.1.83   Ready
 ```
 
 If you have running pods, it's fine. The kubelet have read a config file and started them.

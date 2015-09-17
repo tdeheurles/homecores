@@ -34,6 +34,7 @@ rm -rf auto_generated/*
 
 echo "Prepare config for different services"
 ./bootstrap_scripts/prepare_config_files.sh
+echo -e "Configuration is finished\n\n"
 
 echo "Launch Vagrant"
 vagrant destroy -f \
