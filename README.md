@@ -31,12 +31,10 @@ So you will need :
 - a bash CLI
 - an ssh client
 
-A work on certificates :  
-To simplify the first run, demo certificates are given for kubernetes and the user. You will find a guide [here](/docs/certificates.md) how to generate your own.
+A word on certificates :  
+- To simplify the first run, demo certificates are given for the kubernetes cluster and the user. You will find a guide [here](/docs/certificates.md) on how to generate your own.
 
 ## Prerequisite
-
-The project have 4 main dependencies : Virtualbox, Vagrant, a Bash interpret and an ssh client. Other dependencies are needed if you want to generate your certificates.
 
 ### Virtualbox
 
@@ -48,12 +46,12 @@ The project have 4 main dependencies : Virtualbox, Vagrant, a Bash interpret and
 
 ### Bash CLI and an ssh client
 
-This two elements can be found in that [git installer](https://git-scm.com/). Other solutions like Cygwin can be used.  
+This two elements can be found in that [git installer](https://git-scm.com/).  Other solutions like Cygwin can be used.  
 
 Windows user informations :
-  - git bash: it uses the cmd.exe. You can't resize or copy paste from cmd.exe as you want. That is not a problem with windows 10 as the cmd.exe is `usable ...`
-  - ConEMU: can be used for a better interaction than the win7 cmd.exe, but there is still issue with it (like less command doesn't working)
-  - Cygwin: cygwin seems to not have problem excepted it's long installation. You can follow the cygwin part of [that guide](http://tdeheurles.github.io/How-to-install-docker-on-windows/#install-cygwin)
+  - `git bash`: it uses the cmd.exe. You can't resize or copy paste from cmd.exe as you want. That is not a problem with windows 10 as the cmd.exe is `usable ...`
+  - `ConEMU`: can be used for a better interaction than the win7 cmd.exe, but there is still issues with it (like the `less` command doesn't appearing correctly)
+  - `Cygwin`: it seems to not have problem excepted it's long installation. You can follow the cygwin part of [that guide](http://tdeheurles.github.io/How-to-install-docker-on-windows/#install-cygwin)
 
 ## Starting the project
 
@@ -67,7 +65,7 @@ Windows user informations :
 
 You should have this :
 
-```
+```bash
 # =================== USER CONFIGURATION ====================
 # ===========================================================
 
@@ -99,7 +97,7 @@ public_network_to_use="Qualcomm Atheros AR8151 PCI-E Gigabit Ethernet Controller
   - the information needed is the one corresponding to `Name:`
   - So as in the example below, I will take `Qualcomm Atheros AR8151 PCI-E Gigabit Ethernet Controller (NDIS 6.20)`:
 
-```
+```bash
 ➜  ~  cd "C:\Program Files\Oracle\VirtualBox"
 ➜  VirtualBox  vboxmanage list bridgedifs
 Name:            Qualcomm Atheros AR8151 PCI-E Gigabit Ethernet Controller (NDIS 6.20)
@@ -125,7 +123,7 @@ Some download will occure. And the project will finally give the CoreOS prompt.
 
 Here is an example of the `./start.sh` script :
 
-```
+```bash
 ➜  homecores git:(master) ✗ ./start.sh
 Control ssh key
 Will start as master
@@ -203,14 +201,14 @@ CoreOS alpha (801.0.0)
 core@master1 ~ $
 ```
 
-### test and understand
+### How to test that everything is started correctly
 If the script run successfully, you have been `ssh` to `CoreOS`.  
 
 ##### launching
 When you have ssh in, you will have to wait for some download and process to be done.  
 You can monitor these process by using the `slj` alias for `systemctl list-jobs` :  
 
-```
+```bash
 core@master1 ~ $ slj
  JOB  UNIT                   TYPE    STATE
 2265 flanneld.service        start   running
@@ -222,7 +220,7 @@ flanneld and kubelet need need to be downloaded. The last is the cloud-config th
 
 You can also use `sst` (alias for `systemctl status`).
 
-```
+```bash
  $ sst
 ● coreos1 RETURN)
     State: running
@@ -235,7 +233,8 @@ So first, wait for these queued jobs to end. (command does not update, re launch
 ##### test ETCD2
 `etcd2` is our distributed KV store. Everything repose on his shoulders.  
 The command `elsa` as `etcdctl ls --recursive` should print the value stored on the cluster. Something like that must appear :  
-```
+
+```bash
 username@hostname ~ $ elsa
 /coreos.com
 /coreos.com/updateengine
@@ -254,7 +253,8 @@ The flannel network is defined in the config.sh file :
 For example : `flannel_network="10.200.0.0/16"`.
 
 first look at the flannel environment with the alias `fenv` as `flannel environment`:  
-```
+
+```bash
 $ fenv
 FLANNEL_NETWORK=10.200.0.0/16
 FLANNEL_SUBNET=10.200.53.1/24
@@ -268,7 +268,7 @@ If the FLANNELD_IFACE=192.168.1.5 does not appear, there should be a problem wit
 
 Then, run an `ifconfig` to see the networks.
 
-```
+```bash
 core@coreos1 ~ $ ifconfig                                          
 docker0: flags=4099<UP,BROADCAST,MULTICAST>  mtu 1500              
         inet 10.200.24.1  netmask 255.255.255.0  broadcast 0.0.0.0 
@@ -315,7 +315,7 @@ Just run `kubectl`, if the help appear. It's fine
 `sytemd` is in charge to run the `kubelet` (kubernetes part that start and stop containers). So to look if everything is fine, just look to your running containers :
 
 - kst (alias that will prompt some kubernetes informations) :
-```
+```bash
 username@hostname ~ $ kst
 SERVICES
 NAME         LABELS                                    SELECTOR   IP(S)         PORT(S)
