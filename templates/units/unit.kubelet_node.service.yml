@@ -17,7 +17,7 @@
             --hostname-override=${PUBLIC_IP}                                       \
             --cluster_dns=__DNS_SERVICE_IP__                                       \
             --cluster_domain=cluster.local                                         \
-            --kubeconfig=/etc/kubernetes/worker-kubeconfig.yml                     \
+            --kubeconfig=/etc/kubernetes/node_kubeconfig.yml                       \
             --tls-cert-file=__KUBERNETES_SSL_PATH__/__WORKER_PEM_NAME__            \
             --tls-private-key-file=__KUBERNETES_SSL_PATH__/__WORKER_KEY_PEM_NAME__ \
             --cadvisor-port=0

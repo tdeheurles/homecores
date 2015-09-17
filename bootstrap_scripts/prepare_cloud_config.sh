@@ -26,6 +26,7 @@ inject   $unit_folder/unit.write_public_ip.service.yml    $cloud_config_file "__
 if [[ $master_hostname == "" ]];then
 	inject $unit_folder/unit.etcd2_master.service.yml     $cloud_config_file "__ETCD2__"
     inject $unit_folder/unit.kubelet_master.service.yml   $cloud_config_file "__KUBELET__"
+    #inject $unit_folder/unit.kubelet_node.service.yml   $cloud_config_file "__KUBELET__"
 	inject $unit_folder/unit.kubectl_master.service.yml   $cloud_config_file "__KUBECTL__"
 else
  	inject $unit_folder/unit.etcd2_node.service.yml       $cloud_config_file "__ETCD2__"
