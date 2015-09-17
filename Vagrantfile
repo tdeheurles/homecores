@@ -6,7 +6,7 @@ require 'fileutils'
 Vagrant.require_version ">= 1.6.0"
 
 CONFIG = File.join(File.dirname(__FILE__), "auto_generated/vagrant_config.rb")
-MOUNT_POINTS = YAML::load_file('auto_generated/vagrant_synced_folders.yaml')
+MOUNT_POINTS = YAML::load_file('synced_folders.yml')
 
 # Defaults for config options defined in CONFIG
 $core_hostname = ""
@@ -140,32 +140,32 @@ Vagrant.configure("2") do |config|
 
     # =============== SHARED FOLDERS
     # =============================================
-    # begin
-    #   MOUNT_POINTS.each do |mount|
-    #     mount_options = ""
-    #     disabled = false
-    #     nfs =  true
-    #     if mount['mount_options']
-    #       mount_options = mount['mount_options']
-    #     end
-    #     if mount['disabled']
-    #       disabled = mount['disabled']
-    #     end
-    #     if mount['nfs']
-    #       nfs = mount['nfs']
-    #     end
-    #     if File.exist?(File.expand_path("#{mount['source']}"))
-    #       if mount['destination']
-    #         config.vm.synced_folder "#{mount['source']}", "#{mount['destination']}",
-    #           id: "#{mount['name']}",
-    #           disabled: disabled,
-    #           mount_options: ["#{mount_options}"],
-    #           nfs: nfs
-    #       end
-    #     end
-    #   end
-    # rescue
-    # end
+    begin
+      MOUNT_POINTS.each do |mount|
+        mount_options = ""
+        disabled = false
+        nfs =  true
+        if mount['mount_options']
+          mount_options = mount['mount_options']
+        end
+        if mount['disabled']
+          disabled = mount['disabled']
+        end
+        if mount['nfs']
+          nfs = mount['nfs']
+        end
+        if File.exist?(File.expand_path("#{mount['source']}"))
+          if mount['destination']
+            config.vm.synced_folder "#{mount['source']}", "#{mount['destination']}",
+              id: "#{mount['name']}",
+              disabled: disabled,
+              mount_options: ["#{mount_options}"],
+              nfs: nfs
+          end
+        end
+      end
+    rescue
+    end
 
     # =============== RCFILES
     # =============================================

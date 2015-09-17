@@ -26,7 +26,6 @@ inject   $unit_folder/unit.write_public_ip.service.yml    $cloud_config_file "__
 if [[ $master_hostname == "" ]];then
 	inject $unit_folder/unit.etcd2_master.service.yml     $cloud_config_file "__ETCD2__"
     inject $unit_folder/unit.kubelet_master.service.yml   $cloud_config_file "__KUBELET__"
-    #inject $unit_folder/unit.kubelet_node.service.yml   $cloud_config_file "__KUBELET__"
 	inject $unit_folder/unit.kubectl_master.service.yml   $cloud_config_file "__KUBECTL__"
 else
  	inject $unit_folder/unit.etcd2_node.service.yml       $cloud_config_file "__ETCD2__"
@@ -72,8 +71,6 @@ sed -i "s|__WORKER_KEY_PEM_NAME__|$WORKER_KEY_PEM_NAME|g"  $cloud_config_file
 sed -i "s|__CA_PEM_NAME__|$CA_PEM_NAME|g"                  $cloud_config_file
 sed -i "s|__ADMIN_KEY_PEM_NAME__|$ADMIN_KEY_PEM_NAME|g"    $cloud_config_file
 sed -i "s|__ADMIN_PEM_NAME__|$ADMIN_PEM_NAME|g"            $cloud_config_file
-
-
 
 echo "  remove temporary files"
 rm $tmp

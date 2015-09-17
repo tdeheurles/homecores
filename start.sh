@@ -3,8 +3,10 @@
 # control usage
 if [[ ! -f config.sh ]]; then
 	echo "you need to prepare the config.sh file first"
-	echo "open config.sh"
+	echo " => open config.sh in the editor of your choice"
+	echo "    report to the project README.md for instructions"
 	cp templates/template.config.sh config.sh
+	cp templates/template.synced_folders.yml synced_folders.yml
 	exit 1
 fi
 
@@ -34,7 +36,6 @@ echo "Prepare config for different services"
 ./bootstrap_scripts/prepare_config_files.sh
 
 echo "Launch Vagrant"
-#vagrant global-status --prune
 vagrant destroy -f \
 && vagrant up \
 && echo "Vagrant is up"                             \

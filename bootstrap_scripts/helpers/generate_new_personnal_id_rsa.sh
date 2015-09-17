@@ -1,3 +1,3 @@
 #!/bin/bash
 
-echo "This script is not yet implemented"
+ssh-keygen -t rsa -b 4096 -C "homecores@example.com"

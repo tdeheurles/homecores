@@ -9,7 +9,6 @@
 # control usage
 if [[ ! -f config.sh ]]; then
 	echo "you need to fill the config.sh file first"
-	echo "open config.sh"
 	cp templates/template.config.sh config.sh
 	exit 1
 fi
@@ -33,12 +32,13 @@ testfile() {
 # ==============================================
 echo -e "\e[92mClean previous certificates\e[39m"
 mkdir -p $CERTIFICATE_PATH
-rm $CERTIFICATE_PATH/*
+[ "$(ls -A $CERTIFICATE_PATH)" ] \
+ && rm $CERTIFICATE_PATH/*
 
 
 # ========== Create a Cluster Root CA ==========
 # ==============================================
-echo -e "\e[92m\n\nCreate cluster Root CA\e[39m"
+echo -e "\e[92m\nCreate cluster Root CA\e[39m"
 openssl genrsa -out $CA_KEY_PEM 2048
 testfile $CA_KEY_PEM
 
@@ -64,8 +64,8 @@ subjectAltName = @alt_names
 DNS.1 = kubernetes
 DNS.2 = kubernetes.default
 IP.1 = ${K8S_SERVICE_IP}
-IP.2 = ${MASTER_IP}
 EOF
+#IP.2 = ${MASTER_IP}
 testfile $OPENSSL_CNF
 
 
@@ -75,6 +75,7 @@ testfile $APISERVER_KEY_PEM
 openssl req -new -key $APISERVER_KEY_PEM         \
   -out $APISERVER_CSR -subj "/CN=kube-apiserver" \
   -config $OPENSSL_CNF
+
 testfile $APISERVER_CSR
 
 openssl x509 -req -in $APISERVER_CSR               \

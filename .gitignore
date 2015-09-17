@@ -1,12 +1,8 @@
 # Bare-Metal
+.vagrant/
+auto_generated/
+certificates
+
 config.sh
 run.sh
-
-.vagrant/
-log/
-
-tmp
-auto_generated/
-id_rsa
-
-certificates
+synced_folders.yml
