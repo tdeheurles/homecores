@@ -232,7 +232,7 @@ ea54b11143fa        gcr.io/google_containers/pause:0.8.0        "/pause"        
 b6e5a8db5d9b        gcr.io/google_containers/pause:0.8.0        "/pause"                 7 minutes ago       Up 7 minutes                            k8s_POD.e4cc795_kube-apiserver-192.168.1.83_default_7c4bf9aa9cfff4a366b0d917afef89de_ad4194e4
 ```
 
-- run `kst` and look for this to appear :
+- run `kst` and look for something like that to appear :
 
 ```bash
 core@master1 ~ $ kst
@@ -259,11 +259,11 @@ NAME           LABELS                                STATUS
 192.168.1.83   kubernetes.io/hostname=192.168.1.83   Ready
 ```
 
-If you have something like that, it's good.
+If you see the 4 kube containers running, it's cool !
 
-#### detail way
+#### Detailed way
 
-##### systemd
+##### Wait for systemd jobs
 When you have ssh in, you will have to wait for some download and process to be done.  
 You can monitor these process by using the `slj` alias for `systemctl list-jobs` :  
 
@@ -275,7 +275,9 @@ core@master1 ~ $ slj
 1315 user-cloudinit@var...   start   running
 ```
 
-flanneld and kubelet need to be downloaded. The last is the cloud-config that contains flanneld et kubelet jobs. We can also see that kubelet state is `waiting`. It waits flanneld to be started.
+flanneld and kubelet need to be downloaded.  
+The last is the cloud-config that contains flanneld et kubelet jobs.  
+We can also see that kubelet state is `waiting`. It waits flanneld to be started.
 
 You can also use `sst` (alias for `systemctl status`).
 
@@ -285,11 +287,12 @@ You can also use `sst` (alias for `systemctl status`).
     State: running
      Jobs: 5 queued     <==== wait for this to become 0
    Failed: 0 units      <==== must be 0
+   [...]
 ```
 
 So first, wait for these queued jobs to end. (command does not update, re launch command ;-))
 
-##### test ETCD2
+##### Control ETCD2 Key/Value store
 `etcd2` is our distributed KV store. Everything repose on his shoulders.  
 The command `elsa` as `etcdctl ls --recursive` should print the value stored on the cluster. Something like that must appear :  
 
@@ -305,7 +308,7 @@ username@hostname ~ $ elsa
 /coreos.com/network/config
 ```
 
-##### test FLANNEL
+##### Control the FLANNEL network
 flannel is the technology that create a virtual network for our docker daemons on each host.
 
 The flannel network is defined in the config.sh file :  
@@ -365,7 +368,7 @@ We have :
  - lo : your machine loopback
 
 
-##### kubectl
+##### The kubernetes controller: kubectl
 kubectl is the CLI that can be used to communicate with kubernetes.
 It's downloaded after the CoreOS is up.
 Just run `kubectl`, if the help appear. It's fine
