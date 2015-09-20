@@ -6,7 +6,8 @@
 
 `homecores` is a project to run a `kubernetes cluster` on `VirtualMachines`.  Each virtual machine started on a different computer.  
 So you can easily work with your pods before moving them to production.  
-It's for development and test purpose.  
+It's for development.  
+
 
 ### What is not homecores
 

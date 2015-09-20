@@ -13,7 +13,7 @@ copy() {
 }
 
 copy bootstrap_scripts
-copy certificates
+copy demo_certificates
 copy templates
 copy .gitattributes
 copy .gitignore
