@@ -117,9 +117,8 @@ VBoxNetworkName: HostInterfaceNetworking-Qualcomm Atheros AR8151 PCI-E Gigabit E
 Here, I will write `public_network_to_use="Qualcomm Atheros AR8151 PCI-E Gigabit Ethernet Controller (NDIS 6.20)"` in my config.sh file
 
 ## Running the project
-Now we can run the project.  
-Go to your first terminal and run `./start.sh`.
 
+Open a `Bash terminal` and run `./start.sh`.  
 Some download will occure. And the project will finally give the CoreOS prompt.
 
 Here is an example of the `./start.sh` script :
