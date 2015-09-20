@@ -89,7 +89,7 @@ public_network_to_use="Qualcomm Atheros AR8151 PCI-E Gigabit Ethernet Controller
 ```
 
 - You can let `coreos_hostname=master1`, it just needs to be unique.
-- Enter the mask of your local network. Not your computer IP but the mask.
+- Enter the mask of your local network. This one is used to `grep` the ip_address after the start of CoreOS.
 - The third information is a bit more difficult to found. It's a vagrant configuration that can be found with a virtualbox tool :
   - run a new CLI (GitBash or another)
   - go to the virtualbox installation
