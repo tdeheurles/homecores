@@ -30,6 +30,12 @@ It's really easy to generate ssh public and private keys.
 - follow the `importing an SSH key` just above
 
 ## Project certificates
+
+### Under work
+This part is not working as the `generate_new_cluster_certificates.sh` need the master IP at encryption time. So it need to be run after the `vagrant up`
+
+---
+
 This project propose a script to generate the certificate for everything. It's located in `bootstrap_scripts/helpers/generate_new_cluster_certificates.sh`. Run it from the homecores folder (don't change your directory to `bootstrap_scripts/helpers/`).
 
 After the script as run, you should have a `certificates` folder generated with the same files as in the `demo_certificates` folder:

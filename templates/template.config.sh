@@ -32,8 +32,8 @@ CERTIFICATE_PATH="demo_certificates"
 # ============================ NODE =========================
 # ===========================================================
 # Uncomment the following to start as a node
-etcd_cluster_ip="192.168.1.51"
-master_hostname="master1"
+# etcd_cluster_ip="192.168.1.51"
+# master_hostname="master1"
 
 # ======================= NOT USER CONF =====================
 # === YOU DO NOT NEED TO GO BELOW THIS LINE NOT USER CONF ===

@@ -65,7 +65,11 @@ DNS.1 = kubernetes
 DNS.2 = kubernetes.default
 IP.1 = ${K8S_SERVICE_IP}
 EOF
+
+# TODO: this element must be added to the openssl.cnf in order to enable certificate 
+#   (so that script need to be executed at runtime)
 #IP.2 = ${MASTER_IP}
+
 testfile $OPENSSL_CNF
 
 
