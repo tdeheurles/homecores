@@ -4,35 +4,34 @@
 
 ### What is homecores
 
-`homecores` is a project to run a `kubernetes cluster` on `VirtualMachines`.  Each virtual machine started on a different computer.  
-So you can easily work with your pods before moving them to production.  
+`homecores` is a project to run a `kubernetes cluster` on `VirtualMachines`.  Each virtual machine starts on a different computer, so you can easily work with your pods before moving them to production.  
 It's for development.  
 
 
 ### What is not homecores
 
 It's not intended to replace a real high availability cluster.  
-The idea is not to have a production cluster with that product.
+The idea is not to have a production grade cluster with that product.
 
 ### Context
 
-- the environments used for test are :
+- the environments used for testing are:
   - Windows 7/10
   - VirtualBox 5.0
   - Cygwin or git bash
 
-### What this project need
+### What this project needs
 
 The project is a `bash script`, that run a `virtualbox image` with the help of `vagrant`.
 
-So you will need :
+So you will need:
 
 - Virtualbox
 - Vagrant
 - a bash CLI
 - an ssh client
 
-A word on certificates :  
+A word on certificates:  
 - To simplify the first run, demo certificates are given for the kubernetes cluster and the user. You will find a guide [here](/docs/certificates.md) on how to generate your own.
 
 ## Prerequisite
@@ -49,10 +48,10 @@ A word on certificates :
 
 This two elements can be found in that [git installer](https://git-scm.com/).  Other solutions like Cygwin can be used.  
 
-Windows user informations :
+Windows user informations:
   - `git bash`: it uses the cmd.exe. You can't resize or copy paste from cmd.exe as you want. That is not a problem with windows 10 as the cmd.exe is `usable ...`
-  - `ConEMU`: can be used for a better interaction than the win7 cmd.exe, but there is still issues with it (like the `less` command doesn't appearing correctly)
-  - `Cygwin`: it seems to not have problem excepted it's long installation. You can follow the cygwin part of [that guide](http://tdeheurles.github.io/How-to-install-docker-on-windows/#install-cygwin)
+  - `ConEMU`: can be used for a better interaction than the win7 cmd.exe, but there are still issues with it (like the `less` command not appearing correctly)
+  - `Cygwin`: it seems not to have problem excepted its long installation. You can follow the cygwin part of [that guide](http://tdeheurles.github.io/How-to-install-docker-on-windows/#install-cygwin)
 
 ## Preparing the project
 
@@ -64,7 +63,7 @@ Windows user informations :
 - run `./start.sh`. This will generate the file `config.sh`
 - Edit `config.sh` with a text editor of your choice
 
-You should have this :
+You should have this:
 
 ```bash
 # =================== USER CONFIGURATION ====================
@@ -90,13 +89,13 @@ public_network_to_use="Qualcomm Atheros AR8151 PCI-E Gigabit Ethernet Controller
 
 - You can let `coreos_hostname=master1`, it just needs to be unique.
 - Enter the mask of your local network. This one is used to `grep` the ip_address after the start of CoreOS.
-- The third information is a bit more difficult to found. It's a vagrant configuration that can be found with a virtualbox tool :
+- The third information is a bit more difficult to found. It's a vagrant configuration that can be found with a virtualbox tool:
   - run a new CLI (GitBash or another)
   - go to the virtualbox installation
     - for windows it's `cd "C:\Program Files\Oracle\VirtualBox"`
   - run `vboxmanage list bridgedifs`
   - the information needed is the one corresponding to `Name:`
-  - So as an example :
+  - So as an example:
 
 ```bash
 ➜  cd "C:\Program Files\Oracle\VirtualBox"
@@ -114,14 +113,14 @@ Status:          Up
 VBoxNetworkName: HostInterfaceNetworking-Qualcomm Atheros AR8151 PCI-E Gigabit Ethernet Controller (NDIS 6.20)
 ```
 
-Here, I will write `public_network_to_use="Qualcomm Atheros AR8151 PCI-E Gigabit Ethernet Controller (NDIS 6.20)"` in my config.sh file
+Here, I will write `public_network_to_use="Qualcomm Atheros AR8151 PCI-E Gigabit Ethernet Controller (NDIS 6.20)"` in my config.sh file.
 
 ## Running the project
 
 Open a `Bash terminal` and run `./start.sh`.  
-Some download will occure. And the project will finally give the CoreOS prompt.
+Some download will occur and the project will finally give the CoreOS prompt.
 
-Here is an example of the `./start.sh` script :
+Here is an example of the `./start.sh` script:
 
 ```bash
 ➜  ./start.sh
@@ -206,9 +205,9 @@ core@master1 ~ $
 
 ### How to test that everything is started correctly
 If the script run successfully, you have been `ssh` to `CoreOS`.  
-Downloads will now be running (~250Mb)
+Downloads will now be running (~250Mb).
 
-#### Short Way :
+#### Short Way:
 
 - run `slj` and wait that the jobs are finished
 
@@ -217,7 +216,7 @@ core@master1 ~ $ slj
 No jobs running.
 ```
 
-- then run `dps` and wait that 8 containers appear :
+- then run `dps` and wait for 8 containers to show up:
 
 ```bash
 core@master1 ~ $ dps
@@ -232,7 +231,7 @@ ea54b11143fa        gcr.io/google_containers/pause:0.8.0        "/pause"        
 b6e5a8db5d9b        gcr.io/google_containers/pause:0.8.0        "/pause"                 7 minutes ago       Up 7 minutes                            k8s_POD.e4cc795_kube-apiserver-192.168.1.83_default_7c4bf9aa9cfff4a366b0d917afef89de_ad4194e4
 ```
 
-- run `kst` and look for something like that to appear :
+- run `kst` and look for something like that to appear:
 
 ```bash
 core@master1 ~ $ kst
@@ -259,13 +258,13 @@ NAME           LABELS                                STATUS
 192.168.1.83   kubernetes.io/hostname=192.168.1.83   Ready
 ```
 
-If you see the 4 kube containers running, it's cool !
+If you see the 4 kube containers running, it's cool!
 
 #### Detailed way
 
 ##### Wait for systemd jobs
 When you have ssh in, you will have to wait for some download and process to be done.  
-You can monitor these process by using the `slj` alias for `systemctl list-jobs` :  
+You can monitor these processes by using the `slj` alias for `systemctl list-jobs` :  
 
 ```bash
 core@master1 ~ $ slj
@@ -293,8 +292,8 @@ You can also use `sst` (alias for `systemctl status`).
 So first, wait for these queued jobs to end. (command does not update, re launch command ;-))
 
 ##### Control ETCD2 Key/Value store
-`etcd2` is our distributed KV store. Everything repose on his shoulders.  
-The command `elsa` as `etcdctl ls --recursive` should print the value stored on the cluster. Something like that must appear :  
+`etcd2` is our distributed KV store. Everything rests on his shoulders.  
+The command `elsa` as `etcdctl ls --recursive` should print the value stored on the cluster. Something like that must appear:  
 
 ```bash
 username@hostname ~ $ elsa
@@ -311,7 +310,7 @@ username@hostname ~ $ elsa
 ##### Control the FLANNEL network
 flannel is the technology that create a virtual network for our docker daemons on each host.
 
-The flannel network is defined in the config.sh file :  
+The flannel network is defined in the config.sh file:  
 For example : `flannel_network="10.200.0.0/16"`.
 
 first look at the flannel environment with the alias `fenv` as `flannel environment`:  
@@ -325,7 +324,7 @@ FLANNEL_IPMASQ=true
 FLANNELD_IFACE=192.168.1.5
 ```
 
-If the first 4 lines does not appear, flannel container should be downloading.  
+If the first 4 lines don't appear, flannel container should be downloading.  
 If the FLANNELD_IFACE=192.168.1.5 does not appear, there should be a problem with the configuration and the flannel will be local to that computer.
 
 Then, run an `ifconfig` to see the networks.
@@ -357,26 +356,26 @@ lo: flags=73<UP,LOOPBACK,RUNNING>  mtu 65536
         [...]
 ```
 
-We have :
- - docker0 : The inet `must` be the same as the flannel defined in the config. If docker0 does not appear, just run `dbox` command (docker run -ti busybox sh). It will download a small container. Inside container, run `ifconfig`, the eth0 should be something like `10.200.24.4` (corresponding to the flannel CIDR and your flannel0 network).
- - eth0 : this is the vagrant NAT
- - eth1 : this is the vagrant `private_ip`, it's used for NFS (folder sharing)
- - eth2 : this one is `important`. It must corresponds to the ip defined in the `config.sh` file (network_mask="192.168.1"). It's your `public_ip`
- - `flannel0` : This is the one we are looking for. It must be in the CIDR define in `config.sh` (flannel_network="10.200.0.0/16"). It must correpond to :
+We have:
+ - docker0: The inet `must` be the same as the flannel defined in the config. If docker0 does not appear, just run `dbox` command (docker run -ti busybox sh). It will download a small container. Inside this container, run `ifconfig`, the eth0 should be something like `10.200.24.4` (corresponding to the flannel CIDR and your flannel0 network).
+ - eth0: this is the vagrant NAT
+ - eth1: this is the vagrant `private_ip`, it's used for NFS (folder sharing)
+ - eth2: this one is `important`. It must corresponds to the ip defined in the `config.sh` file (network_mask="192.168.1"). It's your `public_ip`
+ - `flannel0`: This is the one we are looking for. It must be in the CIDR define in `config.sh` (flannel_network="10.200.0.0/16"). It must correpond to:
    - `docker0`
    - `eth0` inside containers.
- - lo : your machine loopback
+ - lo: your machine loopback
 
 
 ##### The kubernetes controller: kubectl
 kubectl is the CLI that can be used to communicate with kubernetes.
-It's downloaded after the CoreOS is up.
-Just run `kubectl`, if the help appear. It's fine
+It's downloaded after CoreOS is up.
+Just run `kubectl`, if the help appears then it's fine
 
 ##### kubelet and kubernetes
-`sytemd` is in charge to run the `kubelet` (kubernetes part that start and stop containers). So to look if everything is fine, just look to your running containers :
+`sytemd` is in charge of running the `kubelet` (kubernetes part that starts and stops containers). So to look if everything is fine, just look to your running containers:
 
-- kst (alias that will prompt some kubernetes informations) :
+- kst (alias that will prompt some kubernetes informations):
 ```bash
 core@master1 ~ $ kst
 SERVICES
