@@ -1,49 +1,30 @@
 # -*- mode: ruby -*-
-# # vi: set ft=ruby :
+# vi: set ft=ruby :
 
-require 'fileutils'
-
-Vagrant.require_version ">= 1.6.0"
-
-CONFIG = File.join(File.dirname(__FILE__), "auto_generated/vagrant_config.rb")
-MOUNT_POINTS = YAML::load_file('synced_folders.yml')
 
 # Defaults for config options defined in CONFIG
-$core_hostname = ""
-$num_instances = 1
-$update_channel = "alpha"
-$image_version =  "current"
-$enable_serial_logging = false
-$share_home = false
-$vm_gui = false
-$vm_memory = 6000
-$vm_cpus = 1
-$linux_shared_folders = {}
-$windows_shared_folders = {}
-$forwarded_ports = {}
+Vagrant.require_version '>= 1.6.0'
+MOUNT_POINTS           = YAML::load_file('synced_folders.yml')
+core_hostname          = 'master1'
+update_channel         = 'alpha'
+image_version          = 'current'
+forwarded_ports        = {}
 
-module OS
-  def OS.windows?
-    (/cygwin|mswin|mingw|bccwin|wince|emx/ =~ RUBY_PLATFORM) != nil
-  end
+# DEPRECATED
+#enable_serial_logging  = false
+#share_home             = false
+#linux_shared_folders   = {}
+#windows_shared_folders = {}
+#num_instances          = 1
 
-  def OS.mac?
-   (/darwin/ =~ RUBY_PLATFORM) != nil
-  end
 
-  def OS.unix?
-    !OS.windows?
-  end
 
-  def OS.linux?
-    OS.unix? and not OS.mac?
-  end
-end
-
+# require and plugins
+# ===================
+require 'fileutils'
+require './bootstrap_scripts/helpers.rb'
 
 required_plugins = %w(vagrant-triggers vagrant-reload)
-
-# check either 'http_proxy' or 'HTTP_PROXY' environment variable
 if OS.windows?
   required_plugins.push('vagrant-winnfsd')
 end
@@ -57,92 +38,107 @@ required_plugins.each do |plugin|
   exec "vagrant #{ARGV.join(' ')}" if need_restart
 end
 
-# import ruby config
-if File.exist?(CONFIG)
-  require CONFIG
-end
 
-# # Use old vb_xxx config variables when set
-def vm_gui
-  $vb_gui.nil? ? $vm_gui : $vb_gui
-end
 
-def vm_memory
-  $vb_memory.nil? ? $vm_memory : $vb_memory
+# Start project
+# =============
+# Import config file
+unless File.exist?('./config.rb')
+  puts <<-EOT
+  you need to prepare the config.sh file first
+    => open config.sh in the editor of your choice
+       report to the project README.md for instructions
+  EOT
+  FileUtils.copy('./templates/template.config.rb',          'config.rb')
+  FileUtils.copy('./templates/template.synced_folders.yml', 'synced_folders.yml')
+  exit 1
 end
+require './config.rb'
 
-def vm_cpus
-  $vb_cpus.nil? ? $vm_cpus : $vb_cpus
+
+
+# Control id_rsa mod to enable ssh
+unless File.exist?('id_rsa')
+  puts <<-EOT
+  you need to an ssh key
+    - add id_rsa to the main folder
+  EOT
+  exit 1
 end
+FileUtils.chmod 600, 'id_rsa'
 
-Vagrant.configure("2") do |config|
+
+
+
+unless File.exist?('auto_generated')
+  FileUtils.mkdir 'auto_generated'
+end
+FileUtils.rm 'auto_generated/*', :force => true
+
+
+
+require './bootstrap_scripts/prepare_cloud_config.rb'
+require './bootstrap_scripts/prepare_kubernetes.rb'
+
+
+
+# Start th VM
+# ===========
+Vagrant.configure('2') do |config|
   # always use Vagrants insecure key
-  config.ssh.insert_key       = false
+  config.ssh.insert_key = true
 
   # =============== IMAGE
   # =============================================
-  config.vm.box = "coreos-%s" % $update_channel
-  if $image_version != "current"
-      config.vm.box_version = $image_version
+  config.vm.box = "coreos-#{update_channel}"
+  if image_version != 'current'
+      config.vm.box_version = image_version
   end
+  config.vm.box_url = "http://#{update_channel}.release.core-os.net/amd64-usr/#{image_version}/coreos_production_vagrant.json"
 
-  config.vm.box_url = "http://%s.release.core-os.net/amd64-usr/%s/coreos_production_vagrant.json" % [$update_channel, $image_version]
-
-  config.vm.provider :virtualbox do |v|
-    # On VirtualBox, we don't have guest additions or a functional vboxsf
-    # in CoreOS, so tell Vagrant that so it can be smarter.
-    v.check_guest_additions = false
-    v.functional_vboxsf     = false
-  end
 
   # plugin conflict
-  if Vagrant.has_plugin?("vagrant-vbguest") then
+  if Vagrant.has_plugin?('vagrant-vbguest')
     config.vbguest.auto_update = false
   end
 
-  config.vm.define vm_name = $core_hostname do |config|
-    config.vm.hostname = $core_hostname
+  config.vm.define vm_name = core_hostname do |config|
+    config.vm.hostname = core_hostname
     config.vm.provider :virtualbox do |vb|
-      vb.gui = vm_gui
-      vb.memory = vm_memory
-      vb.cpus = vm_cpus
-      vb.customize ["modifyvm", :id, "--vram", "24"]
+      vb.check_guest_additions = false
+      vb.functional_vboxsf     = false
+      vb.gui                   = false
+      vb.memory                = $vm_memory
+      vb.cpus                  = $vm_cpus
+      vb.customize ['modifyvm', :id, '--vram', '24']
     end
+
 
     # =============== NETWORK
     # =============================================
-    # Forward docker
-    #config.vm.network "forwarded_port", guest: 2375, host: $expose_docker_tcp, auto_correct: true
-      
-    # Forward for ETCD
-    # config.vm.network "forwarded_port", guest: 2379, host: 2379, auto_correct: true
-    # config.vm.network "forwarded_port", guest: 2380, host: 2380, auto_correct: true
-
-    # Forward for FLANNEL
-    # config.vm.network "forwarded_port", guest: 8285, host: 8285, auto_correct: true, protocol: 'udp'
-    # config.vm.network "forwarded_port", guest: 8472, host: 8472, auto_correct: true, protocol: 'udp'
 
     # forward ports
-    $forwarded_ports.each do |guest, host|
-      config.vm.network "forwarded_port", guest: guest, host: host, auto_correct: true
+
+    forwarded_ports.each do |guest, host|
+      config.vm.network 'forwarded_port', guest: guest, host: host, auto_correct: true
     end
 
     # public network
-    #   - network used bt the cluster 
+    #   - network used bt the cluster
     config.vm.network :public_network,
-                      bridge: "#{$public_network_to_use}"
+                      bridge: $public_network_to_use
 
     # private network :
     #   - needed by nfs
     #   - request admin privilege window
-    ip_private = "172.16.1.100"
+    ip_private = '172.16.1.100'
     config.vm.network :private_network, ip: ip_private
 
     # =============== SHARED FOLDERS
     # =============================================
     begin
       MOUNT_POINTS.each do |mount|
-        mount_options = ""
+        mount_options = ''
         disabled = false
         nfs =  true
         if mount['mount_options']
@@ -170,123 +166,129 @@ Vagrant.configure("2") do |config|
     # =============== RCFILES
     # =============================================
     # ZSH
-    if $shell_to_install == "zsh"
-      config.vm.provision :shell, :inline => "rm /home/core/.bashrc"
-      
-      config.vm.provision :file, :source => "templates/zsh/.bashrc",    :destination => "/home/core/.bashrc"
-      config.vm.provision :file, :source => "templates/zsh/.zshrc",     :destination => "/home/core/.zshrc"
-      config.vm.provision :file, :source => "templates/zsh/zsh",        :destination => "/home/core/zsh"
-      config.vm.provision :file, :source => "templates/zsh/.oh-my-zsh", :destination => "/home/core/.oh-my-zsh"
-      
-      config.vm.provision :shell, :inline => "chmod 755 /home/core/zsh/bin/zsh"
+    if $shell_to_install == 'zsh'
+      config.vm.provision :shell, :inline => 'rm /home/core/.bashrc'
+
+      config.vm.provision :file, :source => 'templates/zsh/.bashrc',    :destination => '/home/core/.bashrc'
+      config.vm.provision :file, :source => 'templates/zsh/.zshrc',     :destination => '/home/core/.zshrc'
+      config.vm.provision :file, :source => 'templates/zsh/zsh',        :destination => '/home/core/zsh'
+      config.vm.provision :file, :source => 'templates/zsh/.oh-my-zsh', :destination => '/home/core/.oh-my-zsh'
+
+      config.vm.provision :shell, :inline => 'chmod 755 /home/core/zsh/bin/zsh'
     end
 
     # BASH
-    if $shell_to_install == "bash"
-      config.vm.provision :shell, :inline => "rm /home/core/.bashrc"
-      config.vm.provision :file,  :source => "templates/bash/.bashrc",    
-                          :destination => "/home/core/.bashrc"
+    if $shell_to_install == 'bash'
+      config.vm.provision :shell, :inline => 'rm /home/core/.bashrc'
+      config.vm.provision :file,  :source => 'templates/bash/.bashrc',
+                                  :destination => '/home/core/.bashrc'
     end
 
-    config.vm.provision :file, :source => "templates/.commonrc",      :destination => "/home/core/.commonrc"
+    config.vm.provision :file, :source => 'templates/.commonrc', :destination => '/home/core/.commonrc'
 
 
     # ================== KUBERNETES
     # ==============================================
-    
+
     # kubernetes manifests
     # ====================
     config.vm.provision :shell, keep_color: true,
-                        :inline => "mkdir -p /etc/kubernetes/manifests"
+                        :inline => 'mkdir -p /etc/kubernetes/manifests'
 
-    if $is_master == true
+    if (defined? $master_hostname) == nil
       # --apiserver
-      config.vm.provision :file, :source => "auto_generated/kubernetes/kube-apiserver.yml", 
-                          :destination => "/tmp/kube-apiserver.yml"
+      config.vm.provision :file, :source => 'auto_generated/kubernetes/kube-apiserver.yml',
+                          :destination => '/tmp/kube-apiserver.yml'
 
       config.vm.provision :shell, keep_color: true,
-                          :inline => "mv /tmp/kube-apiserver.yml /etc/kubernetes/manifests/kube-apiserver.yml"
+                          :inline => 'mv /tmp/kube-apiserver.yml /etc/kubernetes/manifests/kube-apiserver.yml'
 
       # --controller
-      config.vm.provision :file, :source => "auto_generated/kubernetes/kube-controller.yml", 
-                          :destination => "/tmp/kube-controller.yml"
+      config.vm.provision :file, :source => 'auto_generated/kubernetes/kube-controller.yml',
+                          :destination => '/tmp/kube-controller.yml'
 
       config.vm.provision :shell, keep_color: true,
-                          :inline => "mv /tmp/kube-controller.yml /etc/kubernetes/manifests/kube-controller.yml"
+                          :inline => 'mv /tmp/kube-controller.yml /etc/kubernetes/manifests/kube-controller.yml'
 
-      # --scheduler    
-      config.vm.provision :file, :source => "auto_generated/kubernetes/kube-scheduler.yml", 
-                          :destination => "/tmp/kube-scheduler.yml"
+      # --scheduler
+      config.vm.provision :file, :source => 'auto_generated/kubernetes/kube-scheduler.yml',
+                                 :destination => '/tmp/kube-scheduler.yml'
 
       config.vm.provision :shell, keep_color: true,
-                          :inline => "mv /tmp/kube-scheduler.yml /etc/kubernetes/manifests/kube-scheduler.yml"
+                          :inline => 'mv /tmp/kube-scheduler.yml /etc/kubernetes/manifests/kube-scheduler.yml'
     else
       # --node_kubeconfig
-      config.vm.provision :file, :source => "auto_generated/kubernetes/node_kubeconfig.yml", 
-                          :destination => "/tmp/node_kubeconfig.yml"
+      config.vm.provision :file, :source => 'auto_generated/kubernetes/node_kubeconfig.yml',
+                          :destination => '/tmp/node_kubeconfig.yml'
 
       config.vm.provision :shell, keep_color: true,
-                          :inline => "mv /tmp/node_kubeconfig.yml /etc/kubernetes/node_kubeconfig.yml"
+                          :inline => 'mv /tmp/node_kubeconfig.yml /etc/kubernetes/node_kubeconfig.yml'
     end
-    
+
     # --proxy
-    config.vm.provision :file, :source => "auto_generated/kubernetes/kube-proxy.yml", 
-                        :destination => "/tmp/kube-proxy.yml"
+    config.vm.provision :file, :source => 'auto_generated/kubernetes/kube-proxy.yml',
+                        :destination => '/tmp/kube-proxy.yml'
 
     config.vm.provision :shell, keep_color: true,
-                        :inline => "mv /tmp/kube-proxy.yml /etc/kubernetes/manifests/kube-proxy.yml"
+                        :inline => 'mv /tmp/kube-proxy.yml /etc/kubernetes/manifests/kube-proxy.yml'
 
 
     # certificates
     # ============
     config.vm.provision :shell, keep_color: true,
-                        :inline => "mkdir -p #{$KUBERNETES_SSL_PATH}"
+                        :inline => "mkdir -p #{$kubernetes_ssl_path}"
 
-    config.vm.provision :file, :source => "#{$CA_PEM}", 
-                        :destination =>   "/tmp/#{$CA_PEM_NAME}"
+    config.vm.provision :file, :source => "#{$ca_pem}",
+                        :destination =>   "/tmp/#{$ca_pem_name}"
 
-    if $is_master == true
+    if (defined? $master_hostname) == nil
       # MASTER
-      config.vm.provision :file, :source => "#{$APISERVER_PEM}", 
-                          :destination =>   "/tmp/#{$APISERVER_PEM_NAME}"
+      config.vm.provision :file, :source => "#{$apiserver_pem}",
+                          :destination =>   "/tmp/#{$apiserver_pem_name}"
 
-      config.vm.provision :file, :source => "#{$APISERVER_KEY_PEM}", 
-                          :destination =>   "/tmp/#{$APISERVER_KEY_PEM_NAME}"
+      config.vm.provision :file, :source => "#{$apiserver_key_pem}",
+                          :destination =>   "/tmp/#{$apiserver_key_pem_name}"
 
       config.vm.provision :shell, :privileged => true,
           inline: <<-EOF
-          mv /tmp/#{$CA_PEM_NAME}            #{$KUBERNETES_SSL_PATH}
-          mv /tmp/#{$APISERVER_PEM_NAME}     #{$KUBERNETES_SSL_PATH}
-          mv /tmp/#{$APISERVER_KEY_PEM_NAME} #{$KUBERNETES_SSL_PATH}
+          mv /tmp/#{$ca_pem_name}            #{$kubernetes_ssl_path}
+          mv /tmp/#{$apiserver_pem_name}     #{$kubernetes_ssl_path}
+          mv /tmp/#{$apiserver_key_pem_name} #{$kubernetes_ssl_path}
           EOF
     else
       # NODE
-      config.vm.provision :file, :source => "#{$WORKER_PEM}", 
-                          :destination =>   "/tmp/#{$WORKER_PEM_NAME}"
+      config.vm.provision :file, :source => "#{$worker_pem}",
+                          :destination =>   "/tmp/#{$worker_pem_name}"
 
-      config.vm.provision :file, :source => "#{$WORKER_KEY_PEM}", 
-                          :destination =>   "/tmp/#{$WORKER_KEY_PEM_NAME}"
+      config.vm.provision :file, :source => "#{$worker_key_pem}",
+                          :destination =>   "/tmp/#{$worker_key_pem_name}"
 
-      config.vm.provision :file, :source => "#{$ADMIN_PEM}", 
-                          :destination =>   "/tmp/#{$ADMIN_PEM_NAME}"
+      config.vm.provision :file, :source => "#{$admin_pem}",
+                          :destination =>   "/tmp/#{$admin_pem_name}"
 
-      config.vm.provision :file, :source => "#{$ADMIN_KEY_PEM}", 
-                          :destination =>   "/tmp/#{$ADMIN_KEY_PEM_NAME}"
+      config.vm.provision :file, :source => "#{$admin_key_pem}",
+                          :destination =>   "/tmp/#{$admin_key_pem_name}"
 
       config.vm.provision :shell, :privileged => true,
           inline: <<-EOF
-          mv /tmp/#{$CA_PEM_NAME}         #{$KUBERNETES_SSL_PATH}
-          mv /tmp/#{$WORKER_PEM_NAME}     #{$KUBERNETES_SSL_PATH}
-          mv /tmp/#{$WORKER_KEY_PEM_NAME} #{$KUBERNETES_SSL_PATH}
-          mv /tmp/#{$ADMIN_PEM_NAME}      #{$KUBERNETES_SSL_PATH}
-          mv /tmp/#{$ADMIN_KEY_PEM_NAME}  #{$KUBERNETES_SSL_PATH}
+          mv /tmp/#{$ca_pem_name}         #{$kubernetes_ssl_path}
+          mv /tmp/#{$worker_pem_name}     #{$kubernetes_ssl_path}
+          mv /tmp/#{$worker_key_pem_name} #{$kubernetes_ssl_path}
+          mv /tmp/#{$admin_pem_name}      #{$kubernetes_ssl_path}
+          mv /tmp/#{$admin_key_pem_name}  #{$kubernetes_ssl_path}
           EOF
     end
 
 
     # ================== CLOUD-CONFIG
     # ==============================================
-    config.vm.provision :file, :source => "auto_generated/cloud_config.yml", :destination => "/tmp/vagrantfile-user-data"
-    config.vm.provision :shell, :inline => "mv /tmp/vagrantfile-user-data /var/lib/coreos-vagrant/"
+    config.vm.provision :file, :source => 'auto_generated/cloud_config.yml',
+                               :destination => '/tmp/vagrantfile-user-data'
+
+    # config.vm.provision :file, :source => 'cloud_config2.yml',
+    #                            :destination => '/tmp/vagrantfile-user-data'
+
+    config.vm.provision :shell, :inline => 'mv /tmp/vagrantfile-user-data /var/lib/coreos-vagrant/'
   end
 end
+

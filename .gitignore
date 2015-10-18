@@ -1,8 +1,13 @@
-# Bare-Metal
+# intellij
+.idea
+homecores.iml
+
+# vagrant
 .vagrant/
+
+# homecores generated
 auto_generated/
 certificates
-
 config.sh
 run.sh
 synced_folders.yml

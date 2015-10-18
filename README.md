@@ -22,13 +22,12 @@ The idea is not to have a production grade cluster with that product.
 
 ### What this project needs
 
-The project is a `bash script`, that run a `virtualbox image` with the help of `vagrant`.
+The project is a `ruby script`, that run a `virtualbox image` with the help of `vagrant`.
 
 So you will need:
 
 - Virtualbox
 - Vagrant
-- a bash CLI
 - an ssh client
 
 A word on certificates:  
@@ -44,20 +43,16 @@ A word on certificates:
 
 [Download](https://www.vagrantup.com/downloads.html) and install Vagrant  
 
-### Bash CLI and an ssh client
+### ssh client
 
-This two elements can be found in that [git installer](https://git-scm.com/).  Other solutions like Cygwin can be used.  
-
-Windows user informations:
-  - `git bash`: it uses the cmd.exe. You can't resize or copy paste from cmd.exe as you want. That is not a problem with windows 10 as the cmd.exe is `usable ...`
-  - `ConEMU`: can be used for a better interaction than the win7 cmd.exe, but there are still issues with it (like the `less` command not appearing correctly)
-  - `Cygwin`: it seems not to have problem excepted its long installation. You can follow the cygwin part of [that guide](http://tdeheurles.github.io/How-to-install-docker-on-windows/#install-cygwin)
+There are lots of ssh clients. For windows, you can use the one that come with that [git installer](https://git-scm.com/).    
+Windows CMD is limitative, you should look for [babun](http://babun.github.io/).
 
 ## Preparing the project
 
 ### Configuration, Step by Step
 
-- Start a Gitbash and move to the folder where you want to clone the project
+- Start a terminal and move to the folder where you want to clone the project
 - run `git clone https://github.com/tdeheurles/homecores`
 - go in the project with `cd homecores`
 - run `./start.sh`. This will generate the file `config.sh`
@@ -87,7 +82,7 @@ public_network_to_use="Qualcomm Atheros AR8151 PCI-E Gigabit Ethernet Controller
 [...]
 ```
 
-- You can let `coreos_hostname=master1`, it just needs to be unique.
+- You can let `coreos_hostname=master1`, it just needs to be unique on the cluster.
 - Enter the mask of your local network. This one is used to `grep` the ip_address after the start of CoreOS.
 - The third information is a bit more difficult to found. It's a vagrant configuration that can be found with a virtualbox tool:
   - run a new CLI (GitBash or another)
@@ -117,40 +112,14 @@ Here, I will write `public_network_to_use="Qualcomm Atheros AR8151 PCI-E Gigabit
 
 ## Running the project
 
-Open a `Bash terminal` and run `./start.sh`.  
-Some download will occur and the project will finally give the CoreOS prompt.
+Open a `terminal` and run `./start.sh`.  
+Some download will occure.  
+Then run into VM with `vagrant ssh -- -i ./id_rsa`
 
 Here is an example of the `./start.sh` script:
 
 ```bash
 ➜  ./start.sh
-Control ssh key
-Will start as master
-Prepare folders
-Prepare config for different services
-  Create files and folders
-  Add units to cloud_config
-    templates/units/unit.write_public_ip.service.yml
-    templates/units/unit.etcd2_master.service.yml
-    templates/units/unit.kubelet_master.service.yml
-    templates/units/unit.kubectl_master.service.yml
-    templates/units/unit.flanneld.service.yml
-    templates/units/unit.docker.service.yml
-  Add files to cloud_config
-    templates/coreos_files/file.write_ip.yml
-    templates/coreos_files/file.sed_kubernetes_public_ip.yml
-    templates/coreos_files/file.write_flannel_public_ip.yml
-  Add environment variables
-  remove temporary files
-  Prepare kubernetes manifests
-    apiserver
-    controller-manager
-    scheduler
-    proxy
-Configuration is finished
-
-
-Launch Vagrant
 ==> master1: VM not created. Moving on...
 Bringing machine 'master1' up with 'virtualbox' provider...
 ==> master1: Box 'coreos-alpha' could not be found. Attempting to find and install...
@@ -192,15 +161,6 @@ Bringing machine 'master1' up with 'virtualbox' provider...
 ==> master1: Running provisioner: file...
 ==> master1: Running provisioner: shell...
     master1: Running: inline script
-Vagrant is up
-Will proceed to some async download now :
-  - flannel     |   7 Mb)
-  - kubectl     |  20 Mb)
-  - kubernetes  | 220 Mb)
-
-Automatically ssh you in your CoreOS VM
-CoreOS alpha (801.0.0)
-core@master1 ~ $
 ```
 
 ### How to test that everything is started correctly
