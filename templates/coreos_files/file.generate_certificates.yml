@@ -1,0 +1,101 @@
+  # This script will insert the public_ip in the kubernetes manifest
+  - path:        __PROGRAMS_PATH__/generate_certificates.sh
+    permissions: "0755"
+    owner:       "root"
+    content: |
+      #!/bin/bash -
+      # ====================== CERTIFICATES ======================
+      # ==========================================================
+      # INFO: this script is an implementation of that page :
+      #   https://coreos.com/kubernetes/docs/latest/openssl.html
+      #
+      #
+      # ARGS
+      # 1- public ip
+      PUBLIC_IP=$1
+      #
+      #
+      #
+      #
+      # import configuration
+      . __MAIN_CONFIGURATION_PATH__/certificates_config.sh
+      #
+      #
+      #
+      # ========== Create a Cluster Root CA ==========
+      # ==============================================
+      echo -e "\e[92m\nCreate cluster Root CA\e[39m"
+      openssl genrsa -out __CA_KEY_PEM__ 2048
+      openssl req -x509 -new -nodes -key __CA_KEY_PEM__ \
+          -days 10000 -out $CA_PEM -subj "/CN=kube-ca"
+      #
+      #
+      #
+      # ======= Generate the API Server Keypair ======
+      # ==============================================
+      echo -e "\e[92m\n\nGenerate the API Server Keypair\e[39m"
+      cat <<EOF > __OPENSSL_CNF__
+      [req]
+      req_extensions = v3_req
+      distinguished_name = req_distinguished_name
+      [req_distinguished_name]
+      [ v3_req ]
+      basicConstraints = CA:FALSE
+      keyUsage = nonRepudiation, digitalSignature, keyEncipherment
+      subjectAltName = @alt_names
+      [alt_names]
+      DNS.1 = kubernetes
+      DNS.2 = kubernetes.default
+      IP.1 = __K8S_SERVICE_IP__
+      IP.2 = ${PUBLIC_IP}
+      EOF
+      #
+      openssl genrsa -out __APISERVER_KEY_PEM__ 2048
+      testfile __APISERVER_KEY_PEM__
+      openssl req -new -key __APISERVER_KEY_PEM__         \
+        -out __APISERVER_CSR__ -subj "/CN=kube-apiserver" \
+        -config __OPENSSL_CNF__
+      #
+      openssl x509 -req -in __APISERVER_CSR__            \
+        -CA __CA_PEM__ -CAkey __CA_KEY_PEM__ -CAcreateserial   \
+        -out __APISERVER_PEM__ -days 365 -extensions v3_req \
+        -extfile __OPENSSL_CNF__
+      testfile __APISERVER_PEM__
+
+
+
+
+      # ======= Generate the Kubernetes Worker Keypair ======
+      # =====================================================
+      echo -e "\e[92m\n\nGenerate the API Server Keypair\e[39m"
+      openssl genrsa -out __WORKER_KEY_PEM__ 2048
+      testfile __WORKER_KEY_PEM__
+
+      openssl req -new -key __WORKER_KEY_PEM__      \
+        -out __WORKER_CSR__ -subj "/CN=kube-worker"
+      testfile __WORKER_CSR__
+
+      openssl x509 -req -in __WORKER_CSR__                \
+        -CA __CA_PEM__ -CAkey __CA_KEY_PEM__ -CAcreateserial \
+        -out __WORKER_PEM__ -days 365
+      testfile __WORKER_PEM__
+
+
+
+
+      # ==== Generate the Cluster Administrator Keypair ====
+      # ====================================================
+      echo -e "\e[92m\n\nGenerate the Cluster Administrator Keypair\e[39m"
+      openssl genrsa -out __ADMIN_KEY_PEM__ 2048
+      testfile __ADMIN_KEY_PEM__
+
+      openssl req -new -key __ADMIN_KEY_PEM__     \
+        -out __ADMIN_CSR__ -subj "/CN=kube-admin"
+      testfile __ADMIN_CSR__
+
+      openssl x509 -req -in $ADMIN_CSR                 \
+        -CA __CA_PEM__ -CAkey __CA_KEY_PEM__ -CAcreateserial \
+        -out __ADMIN_PEM__ -days 365
+      testfile __ADMIN_PEM__
+
+

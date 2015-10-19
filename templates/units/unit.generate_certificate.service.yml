@@ -1,0 +1,14 @@
+    - name: generate_certificate.service
+      command: start
+      content: |
+        [Unit]
+        Description=service that launch the generate_certificate script
+        Requires=write_public_ip.service
+        After=write_public_ip.service
+
+        [Service]
+        EnvironmentFile=__MAIN_CONFIGURATION_PATH__/public_ip
+        ExecStart=__PROGRAMS_PATH__/generate_certificates.sh ${PUBLIC_IP}
+
+        [Install]
+        WantedBy=multi-user.target
