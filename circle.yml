@@ -12,6 +12,8 @@ dependencies:
         wget https://dl.bintray.com/mitchellh/vagrant/vagrant_${VERSION}_x86_64.deb
       fi
       sudo dpkg -i vagrant_${VERSION}_x86_64.deb
+    - cp templates/template.config.rb config.rb
+    - cp templates/template.synced_folders.yml synced_folders.yml
 
 test:
   pre:
