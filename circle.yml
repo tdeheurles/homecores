@@ -1,9 +1,24 @@
 dependencies:
-  override:
-    - wget https://dl.bintray.com/mitchellh/vagrant/vagrant_1.7.4_x86_64.deb
-    - sudo dpkg -i vagrant_1.7.4_x86_64.deb
-    - vagrant up
+  cache_directories:
+    - ~/.vagrant.d
+    - ~/tmp
+
+  pre:
+    - |
+      mkdir -p ~/tmp
+      cd ~/tmp
+      VERSION=1.7.4
+      if [ ! -f vagrant_${VERSION}_x86_64.deb ]; then
+        wget https://dl.bintray.com/mitchellh/vagrant/vagrant_${VERSION}_x86_64.deb
+      fi
+      sudo dpkg -i vagrant_${VERSION}_x86_64.deb
 
 test:
+  pre:
+    - vagrant up
+
   override:
     - ping -c 3 172.16.1.100
+
+  post:
+    - vagrant destroy -f
